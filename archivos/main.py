@@ -9,19 +9,23 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from interface_general import interfaz_general
 from Backend.generar_csv import exportar_tablas_a_csv
 from Backend.database import DB_CONFIG
+from Backend.asistente import talk
 
 def login():
 	adminname = datos.get()
 	password = contraseña_dato.get()
 	
 	if adminname == "Luis" and password == "admin123":
-		messagebox.showinfo("Login Exitoso", f"¡Bienvenido! {adminname}, en unos momentos podras acceder al sistema.")
+		talk(f"Bienvenido {adminname}, en unos momentos podras acceder al sistema.")
+		messagebox.showinfo("Login Exitoso", f"preparando sistema para {adminname}...")
 		time.sleep(2)
 		window.destroy()
 		interfaz_general()
 		return
-	else:	
-		messagebox.showerror("Error de Login", "Usuario o contraseña incorrectos.")
+	else:
+		talk("Usuario o contraseña  que ingresaste es incorrecto, intente de nuevo por favor.")	
+		messagebox.showerror("Error de Login", "Ingresa de nuevo tus datos correctamente.")
+
 
 def create_database_if_not_exists(cfg: dict):
 	try:

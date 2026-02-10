@@ -3,6 +3,7 @@ from tkinter import messagebox
 import matplotlib.pyplot as plt
 import numpy as np
 from Backend.database import obtener_rachas_jugador
+from Backend.asistente import talk
 
 def interfaz_estadisticas():
     ventana = ctk.CTk()
@@ -25,10 +26,12 @@ def interfaz_estadisticas():
     ventana.mainloop()
 
 def regresar(ventana):
+    talk("Regresando al menú principal.")
     ventana.destroy()
 
 def stadistics(nickname):
     if not nickname:
+        talk("Ingresa un nickname para que pueda buscar las estadísticas porfavor.")
         messagebox.showwarning("Campo Vacío", "Por favor, ingresa un nickname para buscar.")
         return
     try:
@@ -39,9 +42,10 @@ def stadistics(nickname):
              return
 
         if not resultados:
-            messagebox.showinfo("Sin Datos", f"No se encontraron registros de rachas para el jugador '{nickname}'.")
+            talk(f"Al parecer no se encontraron registros en la base de datos para el jugador {nickname}.")
+            messagebox.showinfo("Sin Datos", f"el jugador '{nickname} no existe en la base de datos'.")
             return
-
+        talk(f"Preparando las estadísticas de {nickname}.")
         # Procesamiento de datos con numpy
         victorias = np.array([fila[0] for fila in resultados])
         derrotas = np.array([fila[1] for fila in resultados])

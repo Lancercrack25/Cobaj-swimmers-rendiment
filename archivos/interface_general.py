@@ -2,6 +2,7 @@ import customtkinter as ctk
 from Registro_manco import eliminacion, registro
 from Registros_papeos import registros_rachas
 from interface_stadistics import interfaz_estadisticas
+from Backend.asistente import talk
 
 
 def interfaz_general():

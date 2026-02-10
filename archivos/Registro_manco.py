@@ -2,10 +2,13 @@ import customtkinter as ctk
 from tkinter import messagebox
 from interface_stadistics import regresar
 from Backend.database import insertar_jugador, eliminar_jugador_db
+from Backend.asistente import talk
 
 def registro():
     window = ctk.CTk()
     window.title("Registro de Jugadores")
+
+    
     window.geometry("400x420")
     window.configure(fg_color="#181A17")
 

@@ -2,6 +2,7 @@ import customtkinter as ctk
 from tkinter import messagebox
 from interface_stadistics import regresar
 from Backend.database import registrar_racha_db
+from Backend.asistente import talk
     
 def validar_campos(nickname, victorias, derrotas):
     if not nickname or not victorias or not derrotas:
