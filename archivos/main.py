@@ -1,139 +1,166 @@
 import customtkinter as ctk
 from tkinter import messagebox
-import os
 import sys
-import psycopg2
-from psycopg2 import sql
-import time
+import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from interface_general import interfaz_general
-from Backend.generar_csv import exportar_tablas_a_csv
-from Backend.database import DB_CONFIG
-from Backend.asistente import talk
+from Backend.database import inicializar_sistema, obtener_conexion, registrar_entrenador, login_entrenador
+# ================= CONFIG =================
+ctk.set_appearance_mode("dark")
+ctk.set_default_color_theme("blue")
 
-def login():
-	adminname = datos.get()
-	password = contraseña_dato.get()
-	
-	if adminname == "Luis" and password == "admin123":
-		talk(f"Bienvenido {adminname}, en unos momentos podras acceder al sistema.")
-		messagebox.showinfo("Login Exitoso", f"preparando sistema para {adminname}...")
-		time.sleep(2)
-		window.destroy()
-		interfaz_general()
-		return
-	else:
-		talk("Usuario o contraseña  que ingresaste es incorrecto, intente de nuevo por favor.")	
-		messagebox.showerror("Error de Login", "Ingresa de nuevo tus datos correctamente.")
+SESSION = {
+    "id": None,
+    "rol": None
+}
+# ================= FUNCIONES =================
+def limpiar():
+    user_entry.delete(0, 'end')
+    pass_entry.delete(0, 'end')
 
+def cambiar_a_nadador():
+    limpiar()
+    titulo.configure(text="Login Nadador")
+    pass_entry.configure(state="disabled")
+    btn_login.configure(text="Ingresar Nadador", command=login_nadador)
+    btn_switch.configure(text="Modo Entrenador", command=cambiar_a_entrenador)
 
-def create_database_if_not_exists(cfg: dict):
-	try:
-		# Conectarse a la base de datos por defecto 'postgres' para operaciones administrativas
-		admin_conn = psycopg2.connect(
-			dbname="postgres",
-			user=cfg["user"],
-			password=cfg["password"],
-			host=cfg["host"],
-			port=cfg["port"],
-		)
-		admin_conn.autocommit = True
-		cur = admin_conn.cursor()
-		# Comprobar si la base de datos ya existe
-		cur.execute("SELECT 1 FROM pg_database WHERE datname = %s", (cfg["dbname"],))
-		exists = cur.fetchone() is not None
-		if exists:
-			print(f"La base de datos '{cfg['dbname']}' ya existe. No se creará de nuevo.")
-		else:
-			cur.execute(sql.SQL("CREATE DATABASE {};").format(sql.Identifier(cfg["dbname"])))
-			create_tables_if_not_exists(DB_CONFIG)
-			print(f"Base de datos '{cfg['dbname']}' creada correctamente.")
+def cambiar_a_entrenador():
+    limpiar()
+    titulo.configure(text="Login Entrenador")
+    pass_entry.configure(state="normal")
+    btn_login.configure(text="Ingresar", command=login_entrenador_ui)
+    btn_switch.configure(text="Modo Nadador", command=cambiar_a_nadador)
 
-		cur.close()
-	except Exception as e:
-		print("Error al verificar/crear la base de datos:", e)
-	finally:
-		if admin_conn:
-			admin_conn.close()
+# ================= LOGIN ENTRENADOR =================
 
-def get_connection(cfg: dict):
-	if psycopg2 is None:
-		print("psycopg2 no está instalado. Ejecuta: pip install psycopg2-binary")
-		return None
+def login_entrenador_ui():
+    nombre = user_entry.get().strip()
+    password = pass_entry.get().strip()
 
-	try:
-		conn = psycopg2.connect(
-			dbname=cfg["dbname"],
-			user=cfg["user"],
-			password=cfg["password"],
-			host=cfg["host"],
-			port=cfg["port"],
-		)
-		return conn
-	except Exception as e:
-		print("No se pudo conectar a la base de datos:", e)
-		return None
+    if not nombre or not password:
+        messagebox.showerror("Error", "Completa todos los campos")
+        return
 
-def create_tables_if_not_exists(cfg: dict):
-    """Crea las tablas iniciales si no existen en la base de datos objetivo."""
-    conn = None
+    res = login_entrenador(nombre, password)
 
-    try:
-        conn = get_connection(cfg)
-        if conn is None:
-            print("No hay conexión a la base de datos. No se crearán tablas.")
+    if res:
+        SESSION["id"] = res[0]
+        SESSION["rol"] = "entrenador"
+
+        messagebox.showinfo("Acceso", f"Bienvenido entrenador {res[1]}")
+        ventana.destroy()
+
+    else:
+        messagebox.showerror("Error", "Credenciales inválidas")
+
+# ================= LOGIN NADADOR =================
+
+def login_nadador():
+    nombre = user_entry.get().strip()
+
+    if not nombre:
+        messagebox.showerror("Error", "Ingresa tu nombre")
+        return
+
+    conn = obtener_conexion()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT id FROM nadadores
+        WHERE nombre=%s AND activo=TRUE
+    """, (nombre,))
+
+    res = cur.fetchone()
+    conn.close()
+
+    if res:
+        SESSION["id"] = res[0]
+        SESSION["rol"] = "nadador"
+
+        messagebox.showinfo("Acceso", f"Bienvenido {nombre}")
+        ventana.destroy()
+
+        # interfaz_nadador(res[0])
+    else:
+        messagebox.showwarning(
+            "Acceso denegado",
+            "No estás registrado.\nSolicita registro con tu entrenador."
+        )
+
+# ================= REGISTRO ENTRENADOR =================
+
+def ventana_registro():
+    registro = ctk.CTkToplevel(ventana)
+    registro.title("Registro Entrenador")
+    registro.geometry("360x430")
+
+    entries = {}
+
+    for campo in ["Nombre", "Edad", "Experiencia (años)", "Especialidad", "Contraseña"]:
+        ctk.CTkLabel(registro, text=campo).pack(pady=4)
+        ent = ctk.CTkEntry(registro, show="*" if campo == "Contraseña" else "")
+        ent.pack()
+        entries[campo] = ent
+
+    def registrar():
+        try:
+            nombre = entries["Nombre"].get()
+            edad = int(entries["Edad"].get())
+            exp = int(entries["Experiencia (años)"].get())
+            esp = entries["Especialidad"].get()
+            pwd = entries["Contraseña"].get()
+
+            if not all([nombre, esp, pwd]):
+                raise ValueError
+
+        except:
+            messagebox.showerror("Error", "Datos inválidos")
             return
 
-        with conn.cursor() as cur:
+        ok, msg = registrar_entrenador(nombre, edad, exp, esp, pwd)
 
-            # Tabla de jugadores
-            cur.execute("""
-                CREATE TABLE IF NOT EXISTS jugadores (
-                    id SERIAL PRIMARY KEY,
-                    nombre TEXT NOT NULL,
-                    nickname TEXT UNIQUE,
-                    creado_en TIMESTAMP DEFAULT now()
-                );
-            """)
+        if ok:
+            messagebox.showinfo("Registro exitoso", msg)
+            registro.destroy()
+        else:
+            messagebox.showerror("Error", msg)
 
-            # Tabla de rachas
-            cur.execute("""
-                CREATE TABLE IF NOT EXISTS rachas (
-                    id SERIAL PRIMARY KEY,
-                    jugador_id INTEGER NOT NULL,
-                    victorias INTEGER DEFAULT 0,
-                    derrotas INTEGER DEFAULT 0,
-                    fecha TIMESTAMP DEFAULT now(),
-                    CONSTRAINT fk_jugador
-                        FOREIGN KEY (jugador_id)
-                        REFERENCES jugadores(id)
-                        ON DELETE CASCADE
-                );
-            """)
+    ctk.CTkButton(registro, text="Registrar", command=registrar).pack(pady=15)
 
-        conn.commit()
-        print("Tablas iniciales creadas/aseguradas correctamente.")
+# ================= UI =================
 
-    except Exception as e:
-        print("Error al crear tablas:", e)
+ventana = ctk.CTk()
+ventana.title("Sistema de Rendimiento Deportivo")
+ventana.geometry("380x420")
 
-    finally:
-        if conn:
-            conn.close()
+titulo = ctk.CTkLabel(ventana, text="Login Entrenador", font=("Arial", 20))
+titulo.pack(pady=20)
 
-window = ctk.CTk()
-window.title("Login - Sistema de Inventario")
-window.geometry("300x300")
+ctk.CTkLabel(ventana, text="Usuario").pack()
+user_entry = ctk.CTkEntry(ventana, width=220)
+user_entry.pack(pady=5)
 
-titulo =ctk.CTkLabel(window,text="Ingrese su usuario").pack()
-datos = ctk.CTkEntry(window, width=170, border_color="grey")
-datos.pack(pady=3)
+ctk.CTkLabel(ventana, text="Contraseña").pack()
+pass_entry = ctk.CTkEntry(ventana, show="*", width=220)
+pass_entry.pack(pady=5)
 
-contraseña =ctk.CTkLabel(window,text="Ingrese su contraseña").pack()
-contraseña_dato= ctk.CTkEntry(window, width=170, border_color="grey", show="*")
-contraseña_dato.pack(pady=3)
+btn_login = ctk.CTkButton(ventana, text="Ingresar", command=login_entrenador_ui)
+btn_login.pack(pady=15)
 
-verificacion = ctk.CTkButton(window,text="Login",fg_color="#459C0A",command=login).pack(pady =8)
-create_database_if_not_exists(DB_CONFIG)
-exportar_tablas_a_csv()
-window.mainloop()
+btn_switch = ctk.CTkButton(
+    ventana,
+    text="Modo Nadador",
+    fg_color="red",
+    command=cambiar_a_nadador
+)
+btn_switch.pack(pady=5)
+
+ctk.CTkButton(
+    ventana,
+    text="Registrarse como entrenador",
+    fg_color="#50a51f",
+    command=ventana_registro
+).pack(pady=10)
+
+ventana.mainloop()
+inicializar_sistema()

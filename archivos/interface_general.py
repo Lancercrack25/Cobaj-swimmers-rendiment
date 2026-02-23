@@ -1,6 +1,6 @@
 import customtkinter as ctk
-from Registro_manco import eliminacion, registro
-from Registros_papeos import registros_rachas
+from archivos.Registro_Entrenador import eliminacion, registro
+from archivos.Registros_entrenamientos import registros_rachas
 from interface_stadistics import interfaz_estadisticas
 from Backend.asistente import talk
 
@@ -14,16 +14,16 @@ def interfaz_general():
     etiqueta_titulo = ctk.CTkLabel(ventana, text="Menu principal", font=ctk.CTkFont(size=20, weight="bold"))
     etiqueta_titulo.pack(pady=8)
 
-    boton_registro = ctk.CTkButton(ventana, text="Registrar de Jugador", fg_color="#0A84FF", command=registro)
+    boton_registro = ctk.CTkButton(ventana, text="Registrar de nadador", fg_color="#0A84FF", command=registro)
     boton_registro.pack(pady=10)
 
-    estadisticas = ctk.CTkButton(ventana, text="Ver estadísticas del jugador", fg_color="#34C759", command=interfaz_estadisticas)
+    estadisticas = ctk.CTkButton(ventana, text="Ver estadísticas del nadador", fg_color="#34C759", command=interfaz_estadisticas)
     estadisticas.pack(pady=12)
 
-    eliminar = ctk.CTkButton(ventana, text="Eliminar jugador", fg_color="#FF3B30", command=lambda: eliminacion())
+    eliminar = ctk.CTkButton(ventana, text="Eliminar nadador", fg_color="#FF3B30", command=lambda: eliminacion())
     eliminar.pack(pady=12)
 
-    rachas = ctk.CTkButton(ventana, text="registro de rachas victorias/derrotas", fg_color="#AF52DE", command=registros_rachas)
+    rachas = ctk.CTkButton(ventana, text="registro de rendimiento de nadador", fg_color="#AF52DE", command=registros_rachas)
     rachas.pack(pady=12)
 
     salir = ctk.CTkButton(ventana, text="Salir", fg_color="#8E8E93", command=lambda: ventana.destroy())
