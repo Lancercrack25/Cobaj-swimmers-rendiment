@@ -3,6 +3,9 @@ from tkinter import messagebox
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+#importar funciones de otros archivos desde aqui 
+from archivos.interface_general import interfaz_general
+from archivos.interface_swimmers import interfaz_nadador
 from Backend.database import inicializar_sistema, obtener_conexion, registrar_entrenador, login_entrenador
 # ================= CONFIG =================
 ctk.set_appearance_mode("dark")
@@ -49,6 +52,7 @@ def login_entrenador_ui():
 
         messagebox.showinfo("Acceso", f"Bienvenido entrenador {res[1]}")
         ventana.destroy()
+        interfaz_general()
 
     else:
         messagebox.showerror("Error", "Credenciales inválidas")
@@ -56,10 +60,11 @@ def login_entrenador_ui():
 # ================= LOGIN NADADOR =================
 
 def login_nadador():
+    #obtenemos lo que se ingreso en el input para verificar
     nombre = user_entry.get().strip()
-
+    
     if not nombre:
-        messagebox.showerror("Error", "Ingresa tu nombre")
+        messagebox.showerror("Error", "no ingresaste tu nombre o contraseña, intenta de nuevo")
         return
 
     conn = obtener_conexion()
@@ -79,8 +84,7 @@ def login_nadador():
 
         messagebox.showinfo("Acceso", f"Bienvenido {nombre}")
         ventana.destroy()
-
-        # interfaz_nadador(res[0])
+        interfaz_nadador()
     else:
         messagebox.showwarning(
             "Acceso denegado",
