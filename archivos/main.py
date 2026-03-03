@@ -3,10 +3,12 @@ from tkinter import messagebox
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 #importar funciones de otros archivos desde aqui 
 from archivos.interface_general import interfaz_general
 from archivos.interface_swimmers import interfaz_nadador
 from Backend.database import inicializar_sistema, obtener_conexion, registrar_entrenador, login_entrenador
+
 # ================= CONFIG =================
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue")
@@ -20,22 +22,33 @@ def limpiar():
     user_entry.delete(0, 'end')
     pass_entry.delete(0, 'end')
 
+# -------- CAMBIAR A NADADOR --------
 def cambiar_a_nadador():
     limpiar()
     titulo.configure(text="Login Nadador")
-    pass_entry.configure(state="disabled")
+    label_user.configure(text="Código de acceso")
+
+    # Ocultar contraseña
+    label_pass.pack_forget()
+    pass_entry.pack_forget()
+
     btn_login.configure(text="Ingresar Nadador", command=login_nadador)
     btn_switch.configure(text="Modo Entrenador", command=cambiar_a_entrenador)
 
+# -------- CAMBIAR A ENTRENADOR --------
 def cambiar_a_entrenador():
     limpiar()
     titulo.configure(text="Login Entrenador")
-    pass_entry.configure(state="normal")
+    label_user.configure(text="Usuario")
+
+    # Mostrar contraseña otra vez
+    label_pass.pack(pady=(10, 0))
+    pass_entry.pack(pady=5)
+
     btn_login.configure(text="Ingresar", command=login_entrenador_ui)
     btn_switch.configure(text="Modo Nadador", command=cambiar_a_nadador)
 
 # ================= LOGIN ENTRENADOR =================
-
 def login_entrenador_ui():
     nombre = user_entry.get().strip()
     password = pass_entry.get().strip()
@@ -53,46 +66,44 @@ def login_entrenador_ui():
         messagebox.showinfo("Acceso", f"Bienvenido entrenador {res[1]}")
         ventana.destroy()
         interfaz_general()
-
     else:
         messagebox.showerror("Error", "Credenciales inválidas")
 
-# ================= LOGIN NADADOR =================
 
+# ================= LOGIN NADADOR =================
 def login_nadador():
-    #obtenemos lo que se ingreso en el input para verificar
-    nombre = user_entry.get().strip()
-    
-    if not nombre:
-        messagebox.showerror("Error", "no ingresaste tu nombre o contraseña, intenta de nuevo")
+    codigo = user_entry.get().strip()
+
+    if not codigo:
+        messagebox.showerror("Error", "Ingresa tu código de acceso")
         return
 
     conn = obtener_conexion()
-    cur = conn.cursor()
+    cursor = conn.cursor()
 
-    cur.execute("""
-        SELECT id FROM nadadores
-        WHERE nombre=%s AND activo=TRUE
-    """, (nombre,))
+    cursor.execute("""
+        SELECT id, nombre 
+        FROM nadadores
+        WHERE codigo_acceso = %s AND activo = TRUE
+    """, (codigo,))
 
-    res = cur.fetchone()
+    resultado = cursor.fetchone()
     conn.close()
 
-    if res:
-        SESSION["id"] = res[0]
+    if resultado:
+        id_nadador, nombre = resultado
+
+        SESSION["id"] = id_nadador
         SESSION["rol"] = "nadador"
 
-        messagebox.showinfo("Acceso", f"Bienvenido {nombre}")
+        messagebox.showinfo("Bienvenido", f"Hola {nombre}")
         ventana.destroy()
         interfaz_nadador()
     else:
-        messagebox.showwarning(
-            "Acceso denegado",
-            "No estás registrado.\nSolicita registro con tu entrenador."
-        )
+        messagebox.showerror("Error", "Código inválido o nadador inactivo")
+
 
 # ================= REGISTRO ENTRENADOR =================
-
 def ventana_registro():
     registro = ctk.CTkToplevel(ventana)
     registro.title("Registro Entrenador")
@@ -132,7 +143,6 @@ def ventana_registro():
     ctk.CTkButton(registro, text="Registrar", command=registrar).pack(pady=15)
 
 # ================= UI =================
-
 ventana = ctk.CTk()
 ventana.title("Sistema de Rendimiento Deportivo")
 ventana.geometry("380x420")
@@ -140,11 +150,15 @@ ventana.geometry("380x420")
 titulo = ctk.CTkLabel(ventana, text="Login Entrenador", font=("Arial", 20))
 titulo.pack(pady=20)
 
-ctk.CTkLabel(ventana, text="Usuario").pack()
+label_user = ctk.CTkLabel(ventana, text="Usuario")
+label_user.pack()
+
 user_entry = ctk.CTkEntry(ventana, width=220)
 user_entry.pack(pady=5)
 
-ctk.CTkLabel(ventana, text="Contraseña").pack()
+label_pass = ctk.CTkLabel(ventana, text="Contraseña")
+label_pass.pack(pady=(10, 0))
+
 pass_entry = ctk.CTkEntry(ventana, show="*", width=220)
 pass_entry.pack(pady=5)
 
@@ -166,5 +180,6 @@ ctk.CTkButton(
     command=ventana_registro
 ).pack(pady=10)
 
+# Inicializar base de datos antes de iniciar
 ventana.mainloop()
 inicializar_sistema()
