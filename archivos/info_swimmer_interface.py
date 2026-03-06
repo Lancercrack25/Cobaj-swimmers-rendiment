@@ -1,0 +1,1 @@
+#aqui se debe de mostrar los datos del nadador, como su nombre, edad, genero, peso, estatura, etc.

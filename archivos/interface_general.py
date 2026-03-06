@@ -1,6 +1,7 @@
 #este archivo es para  la interfaz que el entrenador vera despues de iniciar sesion, aqui se podran registrar nadadores, eliminar nadadores, ver estadisticas, etc. es como el menu principal del entrenador
 import customtkinter as ctk
 from Backend.asistente import talk
+from archivos.interface_stadistics import interfaz_estadisticas
 
 def interfaz_general():
     ventana = ctk.CTk()
@@ -14,7 +15,7 @@ def interfaz_general():
     boton_registro = ctk.CTkButton(ventana, text="Registrar de nadador", fg_color="#0A84FF")
     boton_registro.pack(pady=8)
 
-    estadisticas = ctk.CTkButton(ventana, text="Ver estadísticas del nadador", fg_color="#34C759")
+    estadisticas = ctk.CTkButton(ventana, text="Ver estadísticas del nadador", fg_color="#34C759", command=lambda: interfaz_estadisticas())
     estadisticas.pack(pady=8)
 
     eliminar = ctk.CTkButton(ventana, text="Eliminar nadador", fg_color="#FF3B30")
@@ -23,7 +24,10 @@ def interfaz_general():
     rachas = ctk.CTkButton(ventana, text="registro de rendimiento de nadador", fg_color="#AF52DE")
     rachas.pack(pady=8)
 
-    salir = ctk.CTkButton(ventana, text="Salir", fg_color="#8E8E93", command=lambda: ventana.destroy())
+    lesiones = ctk.CTkButton(ventana, text="registro de lesionados", fg_color="#AF52DE")
+    lesiones.pack(pady=8)
+
+    salir = ctk.CTkButton(ventana, text="Salir", fg_color="#CECF92", command=lambda: ventana.destroy())
     salir.pack(pady=8)
     #mantiene la ventana abierta hasta que decidas precionar el boton de salir
     ventana.mainloop()

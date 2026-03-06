@@ -13,13 +13,10 @@ def interfaz_estadisticas():
     etiqueta_titulo = ctk.CTkLabel(ventana, text="Estadísticas del Nadador", font=ctk.CTkFont(size=20, weight="bold"))
     etiqueta_titulo.pack(pady=8)
 
-    ingreso_nickname = ctk.CTkEntry(ventana, width=200, placeholder_text="Ingrese nombre del nadador")
-    ingreso_nickname.pack(pady=5)
-
-    boton_checar = ctk.CTkButton(ventana, text="Checar estadística individual", fg_color="#9C4C0A")
+    boton_checar = ctk.CTkButton(ventana, text="Checar estadística individual", fg_color="#9C4C0A", command=lambda: personal_statistics_interface())
     boton_checar.pack(pady=8)
 
-    boton_global = ctk.CTkButton(ventana, text="Estadisticas globales", fg_color="#C9BD10")
+    boton_global = ctk.CTkButton(ventana, text="Estadisticas globales", fg_color="#C9BD10", command=lambda: global_statistics_interface())
     boton_global.pack(pady=8)
 
     boton_cerrar = ctk.CTkButton(ventana, text="Regresar", fg_color="#C91010", command=lambda: ventana.destroy())
@@ -33,7 +30,7 @@ def personal_statistics_interface():
     ventana.title("Estadisticas personales de mis nadadores")
     ventana.geometry("550x450")
     ventana.configure(fg_color="#212324")
-    etiqueta_titulo = ctk.CTkLabel(ventana, text="Mis estadísticas", font=ctk.CTkFont(size=20, weight="bold"))
+    etiqueta_titulo = ctk.CTkLabel(ventana, text=" Estadísticas individuales", font=ctk.CTkFont(size=20, weight="bold"))
     etiqueta_titulo.pack(pady=8)
 
     input_nickname = ctk.CTkEntry(ventana, width=200, placeholder_text="Ingresa el codigo del nadador")
@@ -58,11 +55,19 @@ def personal_statistics_interface_swimmer():
 
     boton_checar = ctk.CTkButton(ventana, text="Checar estadísticas", fg_color="#C7A534")
     boton_checar.pack(pady=8)
-    
     ventana.mainloop()
 
+def global_statistics_interface():
+    ventana = ctk.CTk()
+    ventana.title("Estadisticas globales")
+    ventana.geometry("550x450")
+    ventana.configure(fg_color="#212324")
+    etiqueta_titulo = ctk.CTkLabel(ventana, text="Estadísticas globales", font=ctk.CTkFont(size=20, weight="bold"))
+    etiqueta_titulo.pack(pady=8)
 
+    input_nickname = ctk.CTkEntry(ventana, width=200, placeholder_text="Ingrese el nombre del Entrenador")
+    input_nickname.pack(pady=5)
 
-
-
-
+    boton_checar = ctk.CTkButton(ventana, text="Checar estadísticas globales", fg_color="#C7A534")
+    boton_checar.pack(pady=8)
+    ventana.mainloop()

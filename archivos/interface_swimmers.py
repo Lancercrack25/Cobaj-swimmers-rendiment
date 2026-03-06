@@ -1,5 +1,6 @@
 import customtkinter as ctk
 from Backend.asistente import talk
+from archivos.interface_general import personal_statistics_interface_swimmer
 
 #interfaz que vera el usuario al ingresar, en este caso los nadadores
 def interfaz_nadador():
@@ -11,10 +12,10 @@ def interfaz_nadador():
     etiqueta_titulo = ctk.CTkLabel(ventana, text="Menu principal", font=ctk.CTkFont(size=20, weight="bold"))
     etiqueta_titulo.pack(pady=8)
 
-    boton_registro = ctk.CTkButton(ventana, text="Mi perfil", fg_color="#0AA5FF")
-    boton_registro.pack(pady=8)
+    boton_consulta = ctk.CTkButton(ventana, text="Mi perfil", fg_color="#0AA5FF")
+    boton_consulta.pack(pady=8)
 
-    estadisticas = ctk.CTkButton(ventana, text="consultar mis estadísticas ", fg_color="#C7A534")
+    estadisticas = ctk.CTkButton(ventana, text="consultar mis estadísticas ", fg_color="#C7A534", command=lambda: personal_statistics_interface_swimmer())
     estadisticas.pack(pady=8)
 
     salir = ctk.CTkButton(ventana, text="Salir", fg_color="#BE1111", command=lambda: ventana.destroy())

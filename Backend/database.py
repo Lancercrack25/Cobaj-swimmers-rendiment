@@ -3,7 +3,6 @@ from psycopg2 import sql
 import os
 
 # ================= CONFIGURACIÓN =================
-
 DB_CONFIG = {
     "host": os.getenv("DB_HOST", "localhost"),
     "port": int(os.getenv("DB_PORT", 5432)),
@@ -13,7 +12,6 @@ DB_CONFIG = {
 }
 
 # ================= CONEXIÓN =================
-
 def obtener_conexion():
     try:
         return psycopg2.connect(**DB_CONFIG)
@@ -83,6 +81,8 @@ def crear_tablas_si_no_existen():
                 id SERIAL PRIMARY KEY,
                 nombre TEXT NOT NULL,
                 edad INT NOT NULL,
+                codigo_acceso TEXT UNIQUE NOT NULL,
+                status TEXT DEFAULT 'activo',
                 genero TEXT NOT NULL,
                 peso REAL NOT NULL,
                 estatura REAL NOT NULL,
