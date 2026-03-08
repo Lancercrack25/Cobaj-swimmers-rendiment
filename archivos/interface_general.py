@@ -2,6 +2,7 @@
 import customtkinter as ctk
 from Backend.asistente import talk
 from archivos.interface_stadistics import interfaz_estadisticas
+from info_users import profile_trainer
 
 def interfaz_general():
     ventana = ctk.CTk()
@@ -14,6 +15,9 @@ def interfaz_general():
 
     boton_registro = ctk.CTkButton(ventana, text="Registrar de nadador", fg_color="#0A84FF")
     boton_registro.pack(pady=8)
+
+    boton_perfil = ctk.CTkButton(ventana, text="Mi perfil", fg_color="#4D6533",command=lambda:profile_trainer())
+    boton_perfil.pack(pady=8)
 
     estadisticas = ctk.CTkButton(ventana, text="Ver estadísticas del nadador", fg_color="#34C759", command=lambda: interfaz_estadisticas())
     estadisticas.pack(pady=8)

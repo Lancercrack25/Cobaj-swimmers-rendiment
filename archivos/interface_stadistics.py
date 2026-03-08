@@ -1,7 +1,5 @@
 import customtkinter as ctk
 from tkinter import messagebox
-import matplotlib.pyplot as plt
-import numpy as np
 from Backend.asistente import talk
 
 def interfaz_estadisticas():

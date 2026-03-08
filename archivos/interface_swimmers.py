@@ -1,6 +1,6 @@
 import customtkinter as ctk
 from Backend.asistente import talk
-from archivos.interface_general import personal_statistics_interface_swimmer
+from archivos.interface_stadistics import personal_statistics_interface_swimmer
 
 #interfaz que vera el usuario al ingresar, en este caso los nadadores
 def interfaz_nadador():
