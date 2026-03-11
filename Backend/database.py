@@ -1,13 +1,13 @@
 import psycopg2
 import os
 
-# Configuración centralizada
+# Configuración centralizada (OJO: Cambiamos el dbname a natacion_db)
 DB_CONFIG = {
     "host": os.getenv("DB_HOST", "localhost"),
     "port": int(os.getenv("DB_PORT", 5432)),
     "user": os.getenv("DB_USER", "postgres"),
-    "password": os.getenv("DB_PASSWORD", "L123"),
-    "dbname": os.getenv("DB_NAME", "jugadores_db"),
+    "password": os.getenv("DB_PASSWORD", "admin"), # CONTRASENA
+    "dbname": os.getenv("DB_NAME", "natacion_db"), 
 }
 
 def obtener_conexion():
@@ -19,85 +19,108 @@ def obtener_conexion():
         print(f"Error de conexión: {e}")
         return None
 
-def insertar_jugador(nombre, nickname):
-    """Guarda un nuevo jugador."""
+def crear_tablas():
+    """Genera la estructura relacional de la base de datos desde cero."""
+    conn = obtener_conexion()
+    if not conn: return
+    
+    tablas_sql = """
+    -- 1. Tabla principal
+    CREATE TABLE IF NOT EXISTS nadadores (
+        id_nadador SERIAL PRIMARY KEY,
+        nombre VARCHAR(100) NOT NULL,
+        rama VARCHAR(20),
+        fecha_nacimiento DATE
+    );
+
+    -- 2. Entrenamientos (El reemplazo de las 'rachas')
+    CREATE TABLE IF NOT EXISTS entrenamientos (
+        id_entrenamiento SERIAL PRIMARY KEY,
+        id_nadador INTEGER REFERENCES nadadores(id_nadador) ON DELETE CASCADE,
+        fecha DATE DEFAULT CURRENT_DATE,
+        tipo_piscina VARCHAR(20) -- 25m o 50m
+    );
+
+    -- 3. Pruebas de nado (Aquí van los tiempos)
+    CREATE TABLE IF NOT EXISTS pruebas_nado (
+        id_prueba SERIAL PRIMARY KEY,
+        id_entrenamiento INTEGER REFERENCES entrenamientos(id_entrenamiento) ON DELETE CASCADE,
+        estilo VARCHAR(50),
+        distancia_m INTEGER,
+        tiempo_segundos NUMERIC(6,2),
+        brazadas INTEGER
+    );
+
+    -- 4. Lesiones
+    CREATE TABLE IF NOT EXISTS lesiones (
+        id_lesion SERIAL PRIMARY KEY,
+        id_nadador INTEGER REFERENCES nadadores(id_nadador) ON DELETE CASCADE,
+        zona_afectada VARCHAR(100),
+        fecha_incidente DATE,
+        estado_actual VARCHAR(50)
+    );
+
+    -- 5. Rehabilitaciones
+    CREATE TABLE IF NOT EXISTS rehabilitaciones (
+        id_rehab SERIAL PRIMARY KEY,
+        id_lesion INTEGER REFERENCES lesiones(id_lesion) ON DELETE CASCADE,
+        tipo_terapia VARCHAR(100),
+        tiempo_estimado_dias INTEGER,
+        especificaciones_entrenador TEXT,
+        fecha_inicio DATE DEFAULT CURRENT_DATE,
+        fecha_fin DATE
+    );
+    """
+    
+    try:
+        cur = conn.cursor()
+        cur.execute(tablas_sql)
+        conn.commit()
+        print("Tablas creadas y estructuradas con éxito.")
+    except psycopg2.Error as e:
+        print(f"Error al crear tablas: {e}")
+    finally:
+        cur.close()
+        conn.close()
+
+# ================= MÉTODOS CRUD =================
+
+def insertar_nadador(nombre, rama, fecha_nacimiento):
+    """Guarda un nuevo nadador en el sistema."""
     conn = obtener_conexion()
     if not conn: return False, "Error de conexión con la base de datos"
     
     try:
         cur = conn.cursor()
-        cur.execute("INSERT INTO jugadores (nombre, nickname) VALUES (%s, %s)", (nombre, nickname))
+        cur.execute("INSERT INTO nadadores (nombre, rama, fecha_nacimiento) VALUES (%s, %s, %s)", 
+                    (nombre, rama, fecha_nacimiento))
         conn.commit()
-        cur.close()
-        conn.close()
-        return True, "Jugador registrado exitosamente"
+        return True, "Nadador registrado exitosamente"
     except psycopg2.Error as e:
         return False, f"Error de BD: {str(e)}"
+    finally:
+        cur.close()
+        conn.close()
 
-def eliminar_jugador_db(nickname):
-    """Elimina un jugador."""
+def registrar_rehabilitacion(id_lesion, tipo_terapia, dias, especificaciones):
+    """Registra el plan de rehabilitación estructurado por el entrenador."""
     conn = obtener_conexion()
     if not conn: return False, "Error de conexión"
 
     try:
         cur = conn.cursor()
-        cur.execute("DELETE FROM jugadores WHERE nickname = %s", (nickname,))
-        filas = cur.rowcount
+        cur.execute("""
+            INSERT INTO rehabilitaciones (id_lesion, tipo_terapia, tiempo_estimado_dias, especificaciones_entrenador) 
+            VALUES (%s, %s, %s, %s)
+            """, (id_lesion, tipo_terapia, dias, especificaciones))
         conn.commit()
-        cur.close()
-        conn.close()
-        
-        if filas > 0:
-            return True, "Jugador eliminado correctamente"
-        else:
-            return False, "No se encontró el jugador"
+        return True, "Rehabilitación asignada correctamente"
     except psycopg2.Error as e:
         return False, f"Error de BD: {str(e)}"
-
-def obtener_rachas_jugador(nickname):
-    """Obtiene historial de rachas."""
-    conn = obtener_conexion()
-    if not conn: return None, "Error de conexión"
-
-    try:
-        cur = conn.cursor()
-        query = """
-            SELECT r.victorias, r.derrotas, r.fecha
-            FROM rachas r
-            JOIN jugadores j ON r.jugador_id = j.id
-            WHERE j.nickname = %s
-            ORDER BY r.fecha ASC
-        """
-        cur.execute(query, (nickname,))
-        resultados = cur.fetchall()
+    finally:
         cur.close()
         conn.close()
-        return resultados, "Ok"
-    except psycopg2.Error as e:
-        return None, str(e)
 
-def registrar_racha_db(nickname, victorias, derrotas):
-    """Registra una racha."""
-    conn = obtener_conexion()
-    if not conn: return False, "Error de conexión"
-
-    try:
-        cur = conn.cursor()
-        cur.execute("SELECT id FROM jugadores WHERE nickname = %s", (nickname,))
-        res = cur.fetchone()
-        
-        if not res:
-            conn.close()
-            return False, "El jugador no existe"
-            
-        jugador_id = res[0]
-        cur.execute(
-            "INSERT INTO rachas (jugador_id, victorias, derrotas) VALUES (%s, %s, %s)",
-            (jugador_id, int(victorias), int(derrotas))
-        )
-        conn.commit()
-        cur.close()
-        conn.close()
-        return True, "Racha registrada correctamente"
-    except psycopg2.Error as e:
-        return False, f"Error de BD: {str(e)}"
+# Si ejecutas este archivo directamente, crea las tablas.
+if __name__ == "__main__":
+    crear_tablas()
