@@ -4,11 +4,9 @@ from Backend.asistente import talk
 #aqui van las interfaces de perfil tanto del nadador como del entrenandor
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue")
-
 # ===============================
 # PERFIL ENTRENADOR
 # ===============================
-
 def profile_trainer():
 
     ventana = ctk.CTkToplevel()
@@ -48,8 +46,6 @@ def profile_trainer():
     btn_eliminar = ctk.CTkButton(ventana, text="Eliminar", fg_color="red", command=eliminar)
     btn_eliminar.pack(pady=5)
 
-
-
 # ===============================
 # PERFIL NADADOR
 # ===============================
@@ -88,16 +84,16 @@ def profile_swimmer():
     entrenador.pack(pady=5)
 
 
-    def guardar():
+    def guarda():
         messagebox.showinfo("Info", "Nadador guardado (conectar a BD aquí)")
 
 
-    def eliminar():
+    def elimina():
         messagebox.showwarning("Info", "Nadador eliminado (conectar a BD aquí)")
 
 
-    btn_guardar = ctk.CTkButton(ventana, text="Guardar")
+    btn_guardar = ctk.CTkButton(ventana, text="Guardar", command=guarda)
     btn_guardar.pack(pady=10)
 
-    btn_eliminar = ctk.CTkButton(ventana, text="Eliminar", fg_color="red")
+    btn_eliminar = ctk.CTkButton(ventana, text="Eliminar", fg_color="red", command=elimina)
     btn_eliminar.pack(pady=5)
