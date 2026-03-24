@@ -5,8 +5,8 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 #importar funciones de otros archivos desde aqui 
-from archivos.interface_general import interfaz_general
-from archivos.interface_swimmers import interfaz_nadador
+from archivos.Entrenador.interface_general import interfaz_general
+from archivos.Nadadores.interface_swimmers import interfaz_nadador
 from Backend.database import inicializar_sistema, obtener_conexion, registrar_entrenador, login_entrenador
 
 # ================= CONFIG =================
