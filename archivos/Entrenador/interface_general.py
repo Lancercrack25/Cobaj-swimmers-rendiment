@@ -1,8 +1,8 @@
 #este archivo es para  la interfaz que el entrenador vera despues de iniciar sesion, aqui se podran registrar nadadores, eliminar nadadores, ver estadisticas, etc. es como el menu principal del entrenador
 import customtkinter as ctk
+from archivos.metricas_rendimiento.interface_stadistics import interfaz_estadisticas
+from archivos.Entrenador.info_profile import profile_trainer
 from Backend.asistente import talk
-from archivos.interface_stadistics import interfaz_estadisticas
-from info_users import profile_trainer
 
 def interfaz_general():
     ventana = ctk.CTk()

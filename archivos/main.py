@@ -3,6 +3,7 @@ from tkinter import messagebox
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.dont_write_bytecode = True
 
 #importar funciones de otros archivos desde aqui 
 from archivos.Entrenador.interface_general import interfaz_general
