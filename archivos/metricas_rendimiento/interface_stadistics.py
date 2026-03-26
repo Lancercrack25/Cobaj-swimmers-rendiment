@@ -1,6 +1,6 @@
 import customtkinter as ctk
 from tkinter import messagebox
-from Backend.asistente import talk
+from archivos.Asistente_voz.asistente import talk
 
 def interfaz_estadisticas():
     ventana = ctk.CTk()

@@ -1,3 +1,4 @@
+#este es el archivo que logra darle voz al sistema para una mejor interaccion con el usuario
 import speech_recognition as sr
 import pyttsx3
 

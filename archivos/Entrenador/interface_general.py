@@ -2,7 +2,7 @@
 import customtkinter as ctk
 from archivos.metricas_rendimiento.interface_stadistics import interfaz_estadisticas
 from archivos.Entrenador.info_profile import profile_trainer
-from Backend.asistente import talk
+from archivos.Asistente_voz.asistente import talk
 
 def interfaz_general():
     ventana = ctk.CTk()

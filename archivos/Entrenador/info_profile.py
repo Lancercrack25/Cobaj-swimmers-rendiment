@@ -1,6 +1,6 @@
 import customtkinter as ctk
 from tkinter import messagebox
-from Backend.asistente import talk
+from archivos.Asistente_voz.asistente import talk
 #aqui van las interfaces de perfil tanto del nadador como del entrenandor
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue")

@@ -1,7 +1,7 @@
 #en este acrchivo se podra registrar a los nadadores, aqui se podran agregar los datos de cada nadador, como su nombre, edad, genero, etc. es como un registro de nadadores para el entrenador
 import customtkinter as ctk
 from tkinter import messagebox
-from Backend.asistente import talk
+from archivos.Asistente_voz.asistente import talk
 import random
 import string
 

@@ -3,12 +3,14 @@ from tkinter import messagebox
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-sys.dont_write_bytecode = True
+sys.dont_write_bytecode = True #esta linea es para que no se generen mas los pycache
 
 #importar funciones de otros archivos desde aqui 
+from archivos.Asistente_voz.asistente import talk
 from archivos.Entrenador.interface_general import interfaz_general
 from archivos.Nadadores.interface_swimmers import interfaz_nadador
-from Backend.database import inicializar_sistema, obtener_conexion, registrar_entrenador, login_entrenador
+from Backend.database import inicializar_sistema, obtener_conexion
+from Backend.funcionamiento_logica_modulos.entrenadores import registrar_entrenador, login_entrenador
 
 # ================= CONFIG =================
 ctk.set_appearance_mode("dark")
