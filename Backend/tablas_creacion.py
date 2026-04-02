@@ -1,5 +1,3 @@
-import psycopg2
-from psycopg2 import sql
 import os
 from Backend.conection_database import obtener_conexion, DB_CONFIG
 
@@ -7,10 +5,8 @@ def crear_tablas_si_no_existen():
     conn = obtener_conexion()
     if not conn:
         return
-
     try:
         cur = conn.cursor()
-
         # -------------------- ENTRENADORES --------------------
         cur.execute("""
         CREATE TABLE IF NOT EXISTS entrenadores (
