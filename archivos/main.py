@@ -11,13 +11,13 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 #con esta línea evitamos que se creen los archivos pycache al ejecutar el programa
 sys.dont_write_bytecode = True
 #importaciones de funciones de los módulos del programa
+from archivos.Animaciones.splash import mostrar_splash
 from archivos.Asistente_voz.asistente import talk
 from archivos.Entrenador.interface_general import interfaz_general
 from archivos.Nadadores.interface_swimmers import interfaz_nadador
 from Backend.database import inicializar_sistema, obtener_conexion
 from Backend.funcionamiento_logica_modulos.entrenadores import registrar_entrenador, login_entrenador
 
-# ================= CONFIG =================
 # Configuración general CustomTkinter
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue")
@@ -155,7 +155,7 @@ def ventana_registro():
         if w < 100 or h < 100:
             return
 
-        img = Image.open("Backgrounds/fondo 5.jpg").resize((w, h))
+        img = Image.open("Backgrounds/fondo 4.jpg").resize((w, h))
         bg_reg = CTkImage(light_image=img, size=(w, h))
 
         fondo_reg.configure(image=bg_reg)
@@ -171,7 +171,7 @@ def ventana_registro():
         width=280,
         height=440,  # aumentar alto para que quepa botón
         corner_radius=15,
-        fg_color="#6FD8D8"
+        fg_color="#72EEE8"
     )
     card_reg.place(relx=0.5, rely=0.5, anchor="center")
     card_reg.pack_propagate(False)
@@ -181,7 +181,7 @@ def ventana_registro():
 
     entries = {}
     for campo in ["Nombre", "Edad", "Experiencia (años)", "Especialidad", "Contraseña"]:
-        label = ctk.CTkLabel(contenido_frame, text=campo, text_color="white")
+        label = ctk.CTkLabel(contenido_frame, text=campo, text_color="#D3A612", font=("Arial", 18, "bold"))
         label.pack(pady=(8, 2))
         entry = ctk.CTkEntry(
             contenido_frame,
@@ -215,7 +215,7 @@ def ventana_registro():
         else:
             messagebox.showerror("Error", msg)
 
-    btn_reg = ctk.CTkButton(contenido_frame, text="Registrar", command=registrar, fg_color="#DABB10")
+    btn_reg = ctk.CTkButton(contenido_frame, text="Registrar", command=registrar, fg_color="#FAD502")
     btn_reg.pack(pady=15)
 
     registro.bind("<Configure>", actualizar_fondo_reg)
@@ -223,6 +223,7 @@ def ventana_registro():
 
 # --- Ventana principal ---
 ventana = ctk.CTk()
+ventana.withdraw() 
 ventana.geometry(f"{W}x{H}")
 ventana.title("Sistema")
 ventana.configure(fg_color="#000000")
@@ -266,6 +267,9 @@ btn_registrarse = ctk.CTkButton(botones_frame, text="Registrarse como entrenador
 btn_registrarse.pack(fill="x", pady=(0, 10))  # último botón, sin espacio extra
 
 ventana.bind("<Configure>", actualizar_fondo)
+talk("Bienvenido a Cobaj Sports Rendiment")
 
+#funcion de la animacion del splash screen, se muestra al iniciar el programa y luego se oculta para mostrar la ventana principal
+mostrar_splash(ventana)
 ventana.mainloop()
 inicializar_sistema()
