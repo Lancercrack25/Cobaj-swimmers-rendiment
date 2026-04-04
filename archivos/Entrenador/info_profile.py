@@ -1,5 +1,7 @@
 import customtkinter as ctk
 from tkinter import messagebox
+from PIL import Image, ImageFilter
+from customtkinter import CTkImage
 from archivos.Asistente_voz.asistente import talk
 #aqui van las interfaces de perfil tanto del nadador como del entrenandor
 ctk.set_appearance_mode("dark")

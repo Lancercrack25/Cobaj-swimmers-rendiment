@@ -1,4 +1,6 @@
 import customtkinter as ctk
+from PIL import Image, ImageFilter
+from customtkinter import CTkImage
 from archivos.Asistente_voz.asistente import talk
 from archivos.metricas_rendimiento.interface_stadistics import personal_statistics_interface_swimmer
 

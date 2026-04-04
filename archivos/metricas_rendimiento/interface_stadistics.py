@@ -1,6 +1,8 @@
 import customtkinter as ctk
 from tkinter import messagebox
 from archivos.Asistente_voz.asistente import talk
+from PIL import Image, ImageFilter
+from customtkinter import CTkImage
 
 def interfaz_estadisticas():
     ventana = ctk.CTk()
