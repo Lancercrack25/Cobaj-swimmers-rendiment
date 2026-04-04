@@ -146,7 +146,7 @@ def login_nadador():
 
 def ventana_registro():
     registro = ctk.CTkToplevel(ventana)
-    registro.geometry("360x480")  # un poco más alto para que quepa el botón
+    registro.geometry("500x500")  # un poco más alto para que quepa el botón
     registro.title("Registro Entrenador")
 
     def actualizar_fondo_reg(event=None):
