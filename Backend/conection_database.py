@@ -1,14 +1,18 @@
 import psycopg2
 from psycopg2 import sql
 import os
+from dotenv import load_dotenv
 
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '..', '.env'))
+#esta funcion carga las variables de entorno desde el archivo .env, cada uno tiene contraseñas y datos de conexión diferentes, por eso no se sube a github
+load_dotenv()
 # ================= CONFIGURACIÓN =================
 DB_CONFIG = {
-    "host": os.getenv("DB_HOST", "localhost"),
-    "port": int(os.getenv("DB_PORT", 5432)),
-    "user": os.getenv("DB_USER", "postgres"),
-    "password": os.getenv("DB_PASSWORD", "L123"),
-    "dbname": os.getenv("DB_NAME", "nadadores_db"),
+    "host": os.getenv("DB_HOST"),
+    "port": int(os.getenv("DB_PORT")),
+    "user": os.getenv("DB_USER"),
+    "password": os.getenv("DB_PASSWORD"),
+    "dbname": os.getenv("DB_NAME"),
 }
 
 # ================= CONEXIÓN =================

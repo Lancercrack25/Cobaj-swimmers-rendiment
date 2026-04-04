@@ -13,7 +13,7 @@ def crear_tablas_si_no_existen():
             id SERIAL PRIMARY KEY,
             nombre TEXT NOT NULL,
             edad INT CHECK (edad > 0),
-            experiencia_anios INT CHECK (experiencia_anios >= 0),
+            experiencia_anios INT CHECK (experiencia_anios > 0),
             especialidad TEXT NOT NULL,
             password_hash TEXT NOT NULL,
             activo BOOLEAN DEFAULT TRUE

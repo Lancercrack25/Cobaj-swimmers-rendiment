@@ -27,8 +27,9 @@ ctk.set_widget_scaling(1.0)
 ctk.set_window_scaling(1.0)
 
 SESSION = {"id": None, "rol": None}
-
-W, H = 380, 420
+#ancho y alto de la ventana
+W, H = 480, 520
+#ancho y alto del card central donde se encuentran los campos de login y botones, se usa para calcular la zona borrosa del fondo
 CW, CH = 260, 300
 
 ruta_fondo = "Backgrounds/fondo3.webp"
@@ -270,6 +271,6 @@ ventana.bind("<Configure>", actualizar_fondo)
 talk("Bienvenido a Cobaj Sports Rendiment")
 
 #funcion de la animacion del splash screen, se muestra al iniciar el programa y luego se oculta para mostrar la ventana principal
+inicializar_sistema()
 mostrar_splash(ventana)
 ventana.mainloop()
-inicializar_sistema()

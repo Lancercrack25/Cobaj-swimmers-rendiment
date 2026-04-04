@@ -4,7 +4,8 @@ from customtkinter import CTkImage
 from archivos.Asistente_voz.asistente import talk
 
 # ================= SPLASH SCREEN =================
-W, H = 380, 420
+#ancho y alto de la ventana del splash
+W, H = 480, 520
 
 def mostrar_splash(ventana):
     splash = ctk.CTkToplevel()

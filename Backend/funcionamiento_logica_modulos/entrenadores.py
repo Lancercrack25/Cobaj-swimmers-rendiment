@@ -1,6 +1,4 @@
 import psycopg2
-from psycopg2 import sql
-import os
 from Backend.conection_database import obtener_conexion
 
 # ================= ENTRENADORES =================
@@ -14,12 +12,13 @@ def registrar_entrenador(nombre, edad, experiencia, especialidad, password):
         cur = conn.cursor()
         cur.execute("""
             INSERT INTO entrenadores
-            (nombre, edad, experiencia_anios, especialidad, password, activo)
+            (nombre, edad, experiencia_anios, especialidad, password_hash, activo)
             VALUES (%s,%s,%s,%s,%s,TRUE)
         """, (nombre, edad, experiencia, especialidad, password))
         conn.commit()
         return True, "Entrenador registrado correctamente"
     except psycopg2.Error as e:
+        conn.rollback()
         return False, str(e)
     finally:
         conn.close()
@@ -29,13 +28,17 @@ def login_entrenador(nombre, password):
     if not conn:
         return None
 
-    cur = conn.cursor()
-    cur.execute("""
-        SELECT id, nombre
-        FROM entrenadores
-        WHERE nombre=%s AND password=%s AND activo=TRUE
-    """, (nombre, password))
-
-    res = cur.fetchone()
-    conn.close()
-    return res
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT id, nombre
+            FROM entrenadores
+            WHERE nombre=%s AND password_hash=%s AND activo=TRUE
+        """, (nombre, password))
+        res = cur.fetchone()
+        return res
+    except psycopg2.Error as e:
+        print("❌ Error login:", e)
+        return None
+    finally:
+        conn.close()
