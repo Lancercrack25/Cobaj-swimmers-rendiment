@@ -10,30 +10,72 @@ def interfaz_general():
     ventana = ctk.CTk()
     ventana.title("Interfaz General")
     ventana.geometry("550x450")
-    ventana.configure(fg_color="#3D4246")
-    
-    etiqueta_titulo = ctk.CTkLabel(ventana, text="Menu principal", font=ctk.CTkFont(size=20, weight="bold"))
-    etiqueta_titulo.pack(pady=8)
+    ventana.configure(fg_color="#000000")
 
-    boton_registro = ctk.CTkButton(ventana, text="Registrar de nadador", fg_color="#0A84FF")
-    boton_registro.pack(pady=8)
+    # ================= FONDO =================
+    ruta_fondo = "Backgrounds/fondo2.webp"
 
-    boton_perfil = ctk.CTkButton(ventana, text="Mi perfil", fg_color="#4D6533",command=lambda:profile_trainer())
-    boton_perfil.pack(pady=8)
+    fondo_label = ctk.CTkLabel(ventana, text="")
+    fondo_label.place(x=0, y=0, relwidth=1, relheight=1)
+    fondo_label.lower()
 
-    estadisticas = ctk.CTkButton(ventana, text="Ver estadísticas del nadador", fg_color="#34C759", command=lambda: interfaz_estadisticas())
-    estadisticas.pack(pady=8)
+    def actualizar_fondo(event=None):
+        w = ventana.winfo_width()
+        h = ventana.winfo_height()
+        if w < 100 or h < 100:
+            return
 
-    eliminar = ctk.CTkButton(ventana, text="Eliminar nadador", fg_color="#FF3B30")
-    eliminar.pack(pady=8)
+        base = Image.open(ruta_fondo).resize((w, h)).convert("RGBA")
 
-    rachas = ctk.CTkButton(ventana, text="registro de rendimiento de nadador", fg_color="#AF52DE")
-    rachas.pack(pady=8)
+        # zona blur centrada
+        cw, ch = 320, 380
+        cx, cy = (w - cw) // 2, (h - ch) // 2
+        zona = base.crop((cx, cy, cx + cw, cy + ch))
+        zona_blur = zona.filter(ImageFilter.GaussianBlur(radius=8))
+        overlay = Image.new("RGBA", (cw, ch), (255, 255, 255, 15))
+        zona_final = Image.alpha_composite(zona_blur, overlay)
+        base.paste(zona_final, (cx, cy))
 
-    lesiones = ctk.CTkButton(ventana, text="registro de lesionados", fg_color="#AF52DE")
-    lesiones.pack(pady=8)
+        bg = CTkImage(light_image=base.convert("RGB"), size=(w, h))
+        fondo_label.configure(image=bg)
+        fondo_label.image = bg
 
-    salir = ctk.CTkButton(ventana, text="Salir", fg_color="#CECF92", command=lambda: ventana.destroy())
-    salir.pack(pady=8)
-    #mantiene la ventana abierta hasta que decidas precionar el boton de salir
+        card.place(relx=0.5, rely=0.5, anchor="center")
+
+    # ================= CARD CENTRAL =================
+    card = ctk.CTkFrame(ventana, width=300, height=380, corner_radius=20,
+                        fg_color="transparent", bg_color="transparent")
+    card.place(relx=0.5, rely=0.5, anchor="center")
+    card.pack_propagate(False)
+
+    # ================= WIDGETS =================
+    etiqueta_titulo = ctk.CTkLabel(card, text="Menú Principal",
+                                   font=ctk.CTkFont(size=22, weight="bold"),
+                                   text_color="white", bg_color="transparent",
+                                   fg_color="transparent")
+    etiqueta_titulo.pack(pady=(20, 15))
+
+    botones = [
+        ("Registrar nadador",               "#0A84FF", None),
+        ("Mi perfil",                        "#4D6533", lambda: profile_trainer()),
+        ("Ver estadísticas del nadador",     "#34C759", lambda: interfaz_estadisticas()),
+        ("Eliminar nadador",                 "#FF3B30", None),
+        ("Registro de sesión",               "#AF52DE", None),
+        ("Registrar nadador lesionado",      "#D952DE", None),
+        ("Salir",                            "#DD8117", lambda: ventana.destroy()),
+    ]
+
+    for texto, color, comando in botones:
+        ctk.CTkButton(
+            card,
+            text=texto,
+            fg_color=color,
+            bg_color="transparent",
+            hover_color=color,
+            width=240,
+            command=comando if comando else lambda: None
+        ).pack(pady=5)
+
+    ventana.bind("<Configure>", actualizar_fondo)
+    ventana.after(100, actualizar_fondo)
     ventana.mainloop()

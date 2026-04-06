@@ -270,7 +270,8 @@ btn_registrarse.pack(fill="x", pady=(0, 10))  # último botón, sin espacio extr
 ventana.bind("<Configure>", actualizar_fondo)
 talk("Bienvenido a Cobaj Sports Rendiment")
 
-#funcion de la animacion del splash screen, se muestra al iniciar el programa y luego se oculta para mostrar la ventana principal
+#inicializa la base de datos y las tablas en caso de que ya existan solo muestra un mensaje en consola de eso , pero si no existen las crea y avisa por consola,
 inicializar_sistema()
+#funcion de la animacion del splash screen, se muestra al iniciar el programa y luego se oculta para mostrar la ventana principal
 mostrar_splash(ventana)
 ventana.mainloop()
