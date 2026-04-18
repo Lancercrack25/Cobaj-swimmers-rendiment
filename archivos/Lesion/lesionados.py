@@ -1,0 +1,1 @@
+#esta interfaz se registraran los lesionados, aqui el entrenador podra registrar a un nadador como lesionado
