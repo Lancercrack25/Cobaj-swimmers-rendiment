@@ -49,7 +49,7 @@ def validar_campos(nombre, edad_str, peso_str, estatura_str):
 # ================= VENTANA PRINCIPAL =================
 def registro_swimmer():
     registro = ctk.CTkToplevel()
-    registro.geometry("500x620")
+    registro.geometry("500x622")
     registro.title("Registro de Nadador")
     registro.resizable(False, False)
  
@@ -80,12 +80,12 @@ def registro_swimmer():
  
     # ---------------- CARD ----------------
     card = ctk.CTkFrame(
-        registro,
-        width=320,
-        height=570,
-        corner_radius=15,
-        fg_color="#72D9EE"
-    )
+    registro,
+    width=320,
+    height=653,  # 🔥 antes 570
+    corner_radius=15,
+    fg_color="#72D9EE"
+)
     card.place(relx=0.5, rely=0.5, anchor="center")
     card.pack_propagate(False)
  
@@ -121,6 +121,24 @@ def registro_swimmer():
         )
         entry.pack(pady=3)
         entries[campo] = entry
+
+    # ----------- NUEVO CAMPO CONTRASEÑA -----------
+    ctk.CTkLabel(
+        contenido,
+        text="Contraseña",
+        text_color="#D3A612",
+        font=("Arial", 14, "bold")
+    ).pack(pady=(6, 2))
+
+    entry_password = ctk.CTkEntry(
+        contenido,
+        fg_color="#FFFFFF",
+        text_color="#000000",
+        width=230,
+        placeholder_text="Ingresa contraseña",
+        show="*"
+    )
+    entry_password.pack(pady=3)
  
     # ---------------- GÉNERO ----------------
     ctk.CTkLabel(
@@ -161,13 +179,18 @@ def registro_swimmer():
         edad_str  = entries["Edad"].get().strip()
         peso_str  = entries["Peso (kg)"].get().strip()
         est_str   = entries["Estatura (m)"].get().strip()
+        password  = entry_password.get().strip()  # NUEVO
         genero    = genero_var.get()
-        problema  = problema_var.get()  # BooleanVar: True o False directamente
+        problema  = problema_var.get()
  
         # Validar campos
         valido, resultado = validar_campos(nombre, edad_str, peso_str, est_str)
         if not valido:
             messagebox.showerror("Error de validación", resultado)
+            return
+
+        if not password:
+            messagebox.showerror("Error", "La contraseña no puede estar vacía.")
             return
  
         nombre, edad, peso, estatura = resultado
@@ -177,7 +200,7 @@ def registro_swimmer():
         genero = genero_map.get(genero, "M")
  
         # Registrar en la base de datos
-        ok, msg = registrar_nadador(nombre, edad, codigo, genero, peso, estatura, problema)
+        ok, msg = registrar_nadador(nombre, edad, codigo, genero, peso, estatura, problema, password)  # NUEVO
         if ok:
             talk("Nadador registrado correctamente, guarda bien tu código")
             messagebox.showinfo(

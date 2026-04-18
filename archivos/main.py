@@ -135,7 +135,7 @@ def login_nadador_ui():
     if not codigo or not password:
         messagebox.showerror("Error", "Completa todos los campos")
         return
-
+    #aqui se manda a llamar al backend para poder verificar que ambos campos esten en la base de datos
     res = login_nadador(codigo, password)
 
     if res:

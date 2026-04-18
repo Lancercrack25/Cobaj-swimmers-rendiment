@@ -30,6 +30,7 @@ def crear_tablas_si_no_existen():
             genero TEXT CHECK (genero IN ('M','F','Otro')),
             peso NUMERIC(5,2) CHECK (peso > 0),
             estatura NUMERIC(4,2) CHECK (estatura > 0),
+            password TEXT NOT NULL,
             problema_respiratorio BOOLEAN DEFAULT FALSE,
             entrenador_id INTEGER DEFAULT NULL,
             activo BOOLEAN DEFAULT TRUE,

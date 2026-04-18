@@ -2,9 +2,8 @@ import psycopg2
 from psycopg2 import sql
 import os
 from Backend.conection_database import obtener_conexion
-
 # ================= NADADORES =================
-def registrar_nadador(nombre, edad, codigo, genero, peso, estatura, problema):
+def registrar_nadador(nombre, edad, codigo, genero, peso, estatura, problema,password):
     conn = obtener_conexion()
     if not conn:
         return False, "Error de conexión"
@@ -12,11 +11,10 @@ def registrar_nadador(nombre, edad, codigo, genero, peso, estatura, problema):
     try:
         cur = conn.cursor()
         cur.execute("""
-            INSERT INTO nadadores
-            (nombre, edad, codigo_acceso, genero, peso, estatura, problema_respiratorio, activo)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, TRUE)
-        """, (nombre, edad, codigo, genero, peso, estatura, problema))
-
+        INSERT INTO nadadores
+        (nombre, edad, codigo_acceso, genero, peso, estatura, password, problema_respiratorio, activo)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, TRUE)
+    """, (nombre, edad, codigo, genero, peso, estatura, password, problema))
         conn.commit()
         return True, "Nadador registrado correctamente"
 
@@ -27,7 +25,7 @@ def registrar_nadador(nombre, edad, codigo, genero, peso, estatura, problema):
     finally:
         conn.close()
 
-def login_nadador(codigo):
+def login_nadador(codigo, password):
     conn = obtener_conexion()
     if not conn:
         return None
@@ -37,8 +35,8 @@ def login_nadador(codigo):
         cur.execute("""
             SELECT id, nombre
             FROM nadadores
-            WHERE codigo_acceso=%s AND activo=TRUE
-        """, (codigo,))
+            WHERE codigo_acceso=%s AND password=%s AND activo=TRUE
+        """, (codigo, password))
 
         res = cur.fetchone()
         return res
