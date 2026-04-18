@@ -15,8 +15,10 @@ from archivos.Animaciones.splash import mostrar_splash
 from archivos.Asistente_voz.asistente import talk
 from archivos.Entrenador.interface_general import interfaz_general
 from archivos.Nadadores.interface_swimmers import interfaz_nadador
+from archivos.Nadadores.Registro_nadador import registro_swimmer
 from Backend.database import inicializar_sistema, obtener_conexion
 from Backend.funcionamiento_logica_modulos.entrenadores import registrar_entrenador, login_entrenador
+from Backend.funcionamiento_logica_modulos.nadadores import login_nadador
 
 # Configuración general CustomTkinter
 ctk.set_appearance_mode("dark")
@@ -74,12 +76,16 @@ def cambiar_a_nadador():
 
     titulo.configure(text="Login Nadador")
     label_user.configure(text="Código de acceso")
-
-    label_pass.place_forget()
-    pass_entry.place_forget()
-
-    btn_login.configure(text="Ingresar Nadador", command=login_nadador)
+    label_pass.configure(text="Contraseña")
+   
+    btn_login.configure(text="Ingresar Nadador", command=login_nadador_ui)
     btn_switch.configure(text="Modo Entrenador", command=cambiar_a_entrenador)
+
+    # 🔹 CAMBIO AGREGADO
+    btn_registrarse.configure(
+        text="Registrar Nadador",
+        command=registro_swimmer
+    )
 
 def cambiar_a_entrenador():
     global ruta_fondo
@@ -96,6 +102,12 @@ def cambiar_a_entrenador():
 
     btn_login.configure(text="Ingresar", command=login_entrenador_ui)
     btn_switch.configure(text="Modo Nadador", command=cambiar_a_nadador)
+
+    # 🔹 CAMBIO AGREGADO
+    btn_registrarse.configure(
+        text="Registrarse como entrenador",
+        command=ventana_registro
+    )
 
 def login_entrenador_ui():
     nombre = user_entry.get().strip()
@@ -116,37 +128,28 @@ def login_entrenador_ui():
     else:
         messagebox.showerror("Error", "Credenciales inválidas")
 
-def login_nadador():
+def login_nadador_ui():
     codigo = user_entry.get().strip()
+    password = pass_entry.get().strip()
 
-    if not codigo:
-        messagebox.showerror("Error", "Ingresa tu código de acceso")
+    if not codigo or not password:
+        messagebox.showerror("Error", "Completa todos los campos")
         return
 
-    conn = obtener_conexion()
-    cursor = conn.cursor()
+    res = login_nadador(codigo, password)
 
-    cursor.execute("""
-        SELECT id, nombre 
-        FROM nadadores
-        WHERE codigo_acceso = %s AND activo = TRUE
-    """, (codigo,))
-
-    resultado = cursor.fetchone()
-    conn.close()
-
-    if resultado:
-        SESSION["id"] = resultado[0]
+    if res:
+        SESSION["id"] = res[0]
         SESSION["rol"] = "nadador"
-        messagebox.showinfo("Bienvenido", f"Hola {resultado[1]}")
+        messagebox.showinfo("Acceso", f"Bienvenido nadador {res[1]}")
         ventana.destroy()
         interfaz_nadador()
     else:
-        messagebox.showerror("Error", "Código inválido o nadador inactivo")
+        messagebox.showerror("Error", "Credenciales inválidas")
 
 def ventana_registro():
     registro = ctk.CTkToplevel(ventana)
-    registro.geometry("500x500")  # un poco más alto para que quepa el botón
+    registro.geometry("500x500")
     registro.title("Registro Entrenador")
 
     def actualizar_fondo_reg(event=None):
@@ -160,7 +163,7 @@ def ventana_registro():
         bg_reg = CTkImage(light_image=img, size=(w, h))
 
         fondo_reg.configure(image=bg_reg)
-        fondo_reg.image = bg_reg  # evitar que desaparezca
+        fondo_reg.image = bg_reg
 
         card_reg.place(relx=0.5, rely=0.5, anchor="center")
 
@@ -170,7 +173,7 @@ def ventana_registro():
     card_reg = ctk.CTkFrame(
         registro,
         width=280,
-        height=440,  # aumentar alto para que quepa botón
+        height=440,
         corner_radius=15,
         fg_color="#72EEE8"
     )
@@ -253,25 +256,25 @@ pass_entry = ctk.CTkEntry(card, show="*", width=200, fg_color="#555", text_color
 pass_entry.place(relx=0.5, rely=0.6, anchor="center")
 
 botones_frame = ctk.CTkFrame(card, fg_color="transparent")
-botones_frame.place(relx=0.5, rely=0.68, anchor="n")  # el top del frame en 68% del card
+botones_frame.place(relx=0.5, rely=0.68, anchor="n")
 
-# --- Botón Ingresar ---
 btn_login = ctk.CTkButton(botones_frame, text="Ingresar", command=login_entrenador_ui)
-btn_login.pack(fill="x", pady=(0, 10))  # 10 píxeles de espacio abajo
+btn_login.pack(fill="x", pady=(0, 10))
 
-# --- Botón Modo Nadador ---
 btn_switch = ctk.CTkButton(botones_frame, text="Modo Nadador", fg_color="red", command=cambiar_a_nadador)
-btn_switch.pack(fill="x", pady=(0, 10))  # 10 píxeles de espacio abajo
+btn_switch.pack(fill="x", pady=(0, 10))
 
-# --- Botón Registrarse ---
-btn_registrarse = ctk.CTkButton(botones_frame, text="Registrarse como entrenador", fg_color="#50a51f", command=ventana_registro)
-btn_registrarse.pack(fill="x", pady=(0, 10))  # último botón, sin espacio extra
+btn_registrarse = ctk.CTkButton(
+    botones_frame,
+    text="Registrarse como entrenador",
+    fg_color="#50a51f",
+    command=ventana_registro
+)
+btn_registrarse.pack(fill="x", pady=(0, 10))
 
 ventana.bind("<Configure>", actualizar_fondo)
 talk("Bienvenido a Cobaj Sports Rendiment")
 
-#inicializa la base de datos y las tablas en caso de que ya existan solo muestra un mensaje en consola de eso , pero si no existen las crea y avisa por consola,
 inicializar_sistema()
-#funcion de la animacion del splash screen, se muestra al iniciar el programa y luego se oculta para mostrar la ventana principal
 mostrar_splash(ventana)
 ventana.mainloop()

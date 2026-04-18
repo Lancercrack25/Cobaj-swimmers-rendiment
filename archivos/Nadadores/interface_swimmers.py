@@ -20,6 +20,9 @@ def interfaz_nadador():
     estadisticas = ctk.CTkButton(ventana, text="consultar mis estadísticas ", fg_color="#C7A534", command=lambda: personal_statistics_interface_swimmer())
     estadisticas.pack(pady=8)
 
+    estadisticas = ctk.CTkButton(ventana, text="lesiones", fg_color="#8B11B4")
+    estadisticas.pack(pady=8)
+
     salir = ctk.CTkButton(ventana, text="Salir", fg_color="#BE1111", command=lambda: ventana.destroy())
     salir.pack(pady=8)
 

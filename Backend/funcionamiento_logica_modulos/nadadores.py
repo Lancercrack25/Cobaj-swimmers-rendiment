@@ -4,9 +4,7 @@ import os
 from Backend.conection_database import obtener_conexion
 
 # ================= NADADORES =================
-
-def registrar_nadador(nombre, edad, genero, peso, estatura,
-                      problema_respiratorio, entrenador_id):
+def registrar_nadador(nombre, edad, codigo, genero, peso, estatura, problema):
     conn = obtener_conexion()
     if not conn:
         return False, "Error de conexión"
@@ -15,32 +13,39 @@ def registrar_nadador(nombre, edad, genero, peso, estatura,
         cur = conn.cursor()
         cur.execute("""
             INSERT INTO nadadores
-            (nombre, edad, genero, peso, estatura,
-             problema_respiratorio, entrenador_id, activo)
-            VALUES (%s,%s,%s,%s,%s,%s,%s,TRUE)
-        """, (nombre, edad, genero, peso, estatura,
-              problema_respiratorio, entrenador_id))
+            (nombre, edad, codigo_acceso, genero, peso, estatura, problema_respiratorio, activo)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, TRUE)
+        """, (nombre, edad, codigo, genero, peso, estatura, problema))
+
         conn.commit()
         return True, "Nadador registrado correctamente"
+
     except psycopg2.Error as e:
+        conn.rollback()
         return False, str(e)
+
     finally:
         conn.close()
 
-def obtener_nadadores(entrenador_id):
+def login_nadador(codigo):
     conn = obtener_conexion()
     if not conn:
-        return []
+        return None
 
-    cur = conn.cursor()
-    cur.execute("""
-        SELECT id, nombre, edad, genero, peso, estatura,
-               problema_respiratorio
-        FROM nadadores
-        WHERE entrenador_id=%s AND activo=TRUE
-        ORDER BY nombre
-    """, (entrenador_id,))
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT id, nombre
+            FROM nadadores
+            WHERE codigo_acceso=%s AND activo=TRUE
+        """, (codigo,))
 
-    res = cur.fetchall()
-    conn.close()
-    return res
+        res = cur.fetchone()
+        return res
+
+    except psycopg2.Error as e:
+        print("❌ Error login nadador:", e)
+        return None
+
+    finally:
+        conn.close()
