@@ -62,7 +62,7 @@ def actualizar_fondo(event=None):
     fondo.configure(image=bg)
 
     card.place(relx=0.5, rely=0.5, anchor="center")
-
+#limpia los campos de texto para evitar que al cambiar de modo queden los datos escritos en los campos
 def limpiar():
     user_entry.delete(0, 'end')
     pass_entry.delete(0, 'end')
@@ -278,5 +278,5 @@ talk("Bienvenido a Cobaj Sports Rendiment")
 inicializar_sistema()
 #muestra el splash de la animacion para la app
 mostrar_splash(ventana)
-#muestra 
+#muestra la ventana principal de la app 
 ventana.mainloop()

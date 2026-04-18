@@ -31,7 +31,7 @@ def crear_tablas_si_no_existen():
             peso NUMERIC(5,2) CHECK (peso > 0),
             estatura NUMERIC(4,2) CHECK (estatura > 0),
             problema_respiratorio BOOLEAN DEFAULT FALSE,
-            entrenador_id INTEGER NOT NULL,
+            entrenador_id INTEGER DEFAULT NULL,
             activo BOOLEAN DEFAULT TRUE,
             CONSTRAINT fk_entrenador
                 FOREIGN KEY (entrenador_id)

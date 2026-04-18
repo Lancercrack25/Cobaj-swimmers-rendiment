@@ -1,0 +1,1 @@
+#aqui se crea la interfaz y la logica de la validacion de si un nadador esta lesionado o no, en caso de que no se manda a llamar la interfaz del otro archivo
