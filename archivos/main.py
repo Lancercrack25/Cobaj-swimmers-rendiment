@@ -274,7 +274,9 @@ btn_registrarse.pack(fill="x", pady=(0, 10))
 
 ventana.bind("<Configure>", actualizar_fondo)
 talk("Bienvenido a Cobaj Sports Rendiment")
-
+#inicia el backend
 inicializar_sistema()
+#muestra el splash de la animacion para la app
 mostrar_splash(ventana)
+#muestra 
 ventana.mainloop()
