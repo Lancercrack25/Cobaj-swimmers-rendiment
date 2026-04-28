@@ -3,10 +3,14 @@ import customtkinter as ctk
 from PIL import Image, ImageFilter
 from customtkinter import CTkImage
 from archivos.metricas_rendimiento.interface_stadistics import interfaz_estadisticas
-from archivos.Entrenador.info_profile import profile_trainer
+from archivos.rendimiento_seciones.verificacion import interfaz_validar_lesion
+from archivos.Lesion.verificacion_lesionados import interfaz_validar_para_lesion
+from archivos.Entrenador.mis_alumnos import interfaz_registrar_nadador
+from archivos.Entrenador.visualizar import interfaz_ver_nadadores
+from archivos.Entrenador.eliminacion_alumnos import interfaz_eliminar_nadador
 from archivos.Asistente_voz.asistente import talk
 
-def interfaz_general():
+def interfaz_general(entrenador_actual):
     ventana = ctk.CTk()
     ventana.title("Interfaz General")
     ventana.geometry("550x450")
@@ -56,12 +60,12 @@ def interfaz_general():
     etiqueta_titulo.pack(pady=(20, 15))
 
     botones = [
-        ("Registrar nadador",               "#0A84FF", None),
-        ("Mi perfil",                        "#4D6533", lambda: profile_trainer()),
+        ("Registrar nadador",                "#0A84FF",lambda: interfaz_registrar_nadador(ventana, entrenador_actual)),
+        ("Mis nadadores",                    "#4D6533", lambda: interfaz_ver_nadadores(entrenador_id=entrenador_actual["id"])),
         ("Ver estadísticas del nadador",     "#34C759", lambda: interfaz_estadisticas()),
-        ("Eliminar nadador",                 "#FF3B30", None),
-        ("Registro de sesión",               "#AF52DE", None),
-        ("Registrar nadador lesionado",      "#D952DE", None),
+        ("Eliminar nadador",                 "#FF3B30", lambda: interfaz_eliminar_nadador(entrenador_id=entrenador_actual["id"])),
+        ("Registro de sesión",               "#AF52DE", lambda: interfaz_validar_lesion(ventana)),
+        ("Registrar nadador lesionado",      "#D952DE", lambda: interfaz_validar_para_lesion(ventana)),
         ("Salir",                            "#DD8117", lambda: ventana.destroy()),
     ]
 

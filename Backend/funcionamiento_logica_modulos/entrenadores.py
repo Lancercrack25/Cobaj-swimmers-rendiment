@@ -42,3 +42,34 @@ def login_entrenador(nombre, password):
         return None
     finally:
         conn.close()
+
+def obtener_entrenador_por_id(entrenador_id):
+    conn = obtener_conexion()
+    if not conn:
+        return None
+
+    try:
+        cur = conn.cursor()
+
+        cur.execute("""
+            SELECT id, nombre
+            FROM entrenadores
+            WHERE id = %s AND activo = TRUE
+        """, (entrenador_id,))
+
+        res = cur.fetchone()
+
+        if res:
+            return {
+                "id": res[0],
+                "nombre": res[1]
+            }
+
+        return None
+
+    except Exception as e:
+        print("❌ Error obteniendo entrenador:", e)
+        return None
+
+    finally:
+        conn.close()

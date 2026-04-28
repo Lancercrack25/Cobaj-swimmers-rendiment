@@ -17,7 +17,7 @@ from archivos.Entrenador.interface_general import interfaz_general
 from archivos.Nadadores.interface_swimmers import interfaz_nadador
 from archivos.Nadadores.Registro_nadador import registro_swimmer
 from Backend.database import inicializar_sistema, obtener_conexion
-from Backend.funcionamiento_logica_modulos.entrenadores import registrar_entrenador, login_entrenador
+from Backend.funcionamiento_logica_modulos.entrenadores import registrar_entrenador, login_entrenador, obtener_entrenador_por_id
 from Backend.funcionamiento_logica_modulos.nadadores import login_nadador
 
 # Configuración general CustomTkinter
@@ -119,14 +119,23 @@ def login_entrenador_ui():
 
     res = login_entrenador(nombre, password)
 
-    if res:
-        SESSION["id"] = res[0]
-        SESSION["rol"] = "entrenador"
-        messagebox.showinfo("Acceso", f"Bienvenido entrenador {res[1]}")
-        ventana.destroy()
-        interfaz_general()
-    else:
+    if not res:
         messagebox.showerror("Error", "Credenciales inválidas")
+        return
+
+    # 🔥 CREAS EL OBJETO GLOBAL CORRECTO
+    entrenador_actual = {
+        "id": res[0],
+        "nombre": res[1]
+    }
+
+    SESSION["id"] = res[0]
+    SESSION["rol"] = "entrenador"
+
+    messagebox.showinfo("Acceso", f"Bienvenido entrenador {res[1]}")
+    ventana.destroy()
+    # 🔥 AQUÍ YA EXISTE Y SE PASA BIEN
+    interfaz_general(entrenador_actual)
 
 def login_nadador_ui():
     codigo = user_entry.get().strip()
