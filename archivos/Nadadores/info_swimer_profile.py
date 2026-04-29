@@ -2,55 +2,161 @@ import customtkinter as ctk
 from tkinter import messagebox
 from PIL import Image, ImageFilter
 from customtkinter import CTkImage
+from Backend.funcionamiento_logica_modulos.nadadores import obtener_nadador_por_id, eliminar_nadador
+from archivos.Animaciones.animacion_dado_baja import mostrar_splash_dado_baja
 from archivos.Asistente_voz.asistente import talk
-#aqui van las interfaces de perfil tanto del nadador como del entrenandor
-ctk.set_appearance_mode("dark")
-ctk.set_default_color_theme("blue")
 
-def profile_swimmer():
+def profile_swimmer(nadador, root):
+    v = ctk.CTkToplevel(root)
+    nadador_id = nadador["id"]
+    nadador_nombre = nadador["nombre"]
+    v.title("Cobaj Sports — Perfil")
+    v.geometry("520x650")
+    v.configure(fg_color="#0A1628")
 
-    ventana = ctk.CTkToplevel()
-    ventana.title("Perfil del Nadador")
-    ventana.geometry("450x550")
+    # ================= FONDO =================
+    try:
+        img_fondo = Image.open("Backgrounds/epic_background.png")
+        fondo_lbl = ctk.CTkLabel(v, text="")
+        fondo_lbl.place(x=0, y=0, relwidth=1, relheight=1)
 
-    titulo = ctk.CTkLabel(ventana, text="Perfil del Nadador", font=("Arial",20,"bold"))
-    titulo.pack(pady=10)
+        def actualizar(event=None):
+            w, h = v.winfo_width(), v.winfo_height()
+            if w < 100 or h < 100:
+                return
+            resized = img_fondo.resize((w, h))
+            v._bg_img = CTkImage(light_image=resized, size=(w, h))
+            fondo_lbl.configure(image=v._bg_img)
+            fondo_lbl.lower()
+            card.lift()
 
-    nombre = ctk.CTkEntry(ventana, placeholder_text="Nombre")
-    nombre.pack(pady=5)
+        v.bind("<Configure>", actualizar)
+        v.after(100, actualizar)
+    except Exception as e:
+        print("Error fondo:", e)
 
-    edad = ctk.CTkEntry(ventana, placeholder_text="Edad")
-    edad.pack(pady=5)
+    # ================= CARD =================
+    card = ctk.CTkFrame(v, width=450, height=590, corner_radius=24,
+                        fg_color="#0F2040", border_width=1, border_color="#1E4080")
+    card.place(relx=0.5, rely=0.5, anchor="center")
 
-    codigo = ctk.CTkEntry(ventana, placeholder_text="Código de acceso")
-    codigo.pack(pady=5)
+    cnt = ctk.CTkFrame(card, fg_color="transparent")
+    cnt.place(x=0, y=0, relwidth=1, relheight=1)
 
-    genero = ctk.CTkOptionMenu(ventana, values=["Masculino","Femenino","Otro"])
-    genero.pack(pady=5)
+    # ================= AVATAR =================
+    av = ctk.CTkFrame(cnt, width=72, height=72, corner_radius=36,
+                      fg_color="#0072FF", border_width=2, border_color="#00C6FF")
+    av.pack(pady=(24, 8))
+    av.pack_propagate(False)
+    ctk.CTkLabel(av, text="🏊", font=("Arial", 28),
+                 fg_color="transparent").place(relx=0.5, rely=0.5, anchor="center")
 
-    peso = ctk.CTkEntry(ventana, placeholder_text="Peso (kg)")
-    peso.pack(pady=5)
+    # ================= TITULO =================
+    ctk.CTkLabel(cnt, text=f"{nadador_nombre}",
+                 font=ctk.CTkFont(size=22, weight="bold"),
+                 text_color="#E8F4FD").pack(pady=(0, 2))
 
-    estatura = ctk.CTkEntry(ventana, placeholder_text="Estatura (m)")
-    estatura.pack(pady=5)
+    ctk.CTkLabel(cnt, text="Perfil del Nadador",
+                 font=ctk.CTkFont(size=13),
+                 text_color="#AAB8C2").pack(pady=(0, 4))
 
-    respiratorio = ctk.CTkCheckBox(ventana, text="Problema respiratorio")
-    respiratorio.pack(pady=5)
+    ctk.CTkFrame(cnt, height=2, fg_color="#0072FF").pack(fill="x", padx=28, pady=8)
 
-    entrenador = ctk.CTkEntry(ventana, placeholder_text="ID del entrenador")
-    entrenador.pack(pady=5)
+    # ================= CAMPOS =================
+    campos_frame = ctk.CTkFrame(cnt, fg_color="transparent")
+    campos_frame.pack(fill="x", padx=28, pady=(0, 8))
 
+    def campo(placeholder, ancho=360):
+        e = ctk.CTkEntry(campos_frame, placeholder_text=placeholder,
+                         height=38, width=ancho, font=ctk.CTkFont(size=13))
+        e.pack(pady=4)
+        return e
 
-    def guarda():
-        messagebox.showinfo("Info", "Nadador guardado (conectar a BD aquí)")
+    e_nombre   = campo("Nombre")
+    e_edad     = campo("Edad")
+    e_codigo   = campo("Código de acceso")
 
+    genero_var = ctk.StringVar(value="Masculino")
+    ctk.CTkOptionMenu(campos_frame, values=["Masculino", "Femenino", "Otro"],
+                      variable=genero_var, width=360, height=38,
+                      font=ctk.CTkFont(size=13)).pack(pady=4)
 
-    def elimina():
-        messagebox.showwarning("Info", "Nadador eliminado (conectar a BD aquí)")
+    e_peso     = campo("Peso (kg)")
+    e_estatura = campo("Estatura (m)")
 
+    prob_var   = ctk.BooleanVar(value=False)
+    ctk.CTkCheckBox(campos_frame, text="Problema respiratorio",
+                    variable=prob_var, font=ctk.CTkFont(size=13),
+                    text_color="#AAB8C2").pack(pady=4, anchor="w")
 
-    btn_guardar = ctk.CTkButton(ventana, text="Guardar", command=guarda)
-    btn_guardar.pack(pady=10)
+    # ================= CARGA DATOS =================
+    def cargar_datos():
+        data = obtener_nadador_por_id(nadador_id)
+        if not data:
+            return
+        e_nombre.insert(0, data.get("nombre", ""))
+        e_edad.insert(0, str(data.get("edad", "")))
+        e_codigo.insert(0, data.get("codigo_acceso", ""))
+        genero_var.set(data.get("genero", "Masculino"))
+        e_peso.insert(0, str(data.get("peso", "")))
+        e_estatura.insert(0, str(data.get("estatura", "")))
+        prob_var.set(data.get("problema_respiratorio", False))
 
-    btn_eliminar = ctk.CTkButton(ventana, text="Eliminar", fg_color="red", command=elimina)
-    btn_eliminar.pack(pady=5)
+    cargar_datos()
+
+    # ================= MENSAJE =================
+    lbl = ctk.CTkLabel(cnt, text="", font=ctk.CTkFont(size=12))
+    lbl.pack(pady=(0, 4))
+
+    # ================= ELIMINAR =================
+    def confirmar_eliminar():
+        dialogo = ctk.CTkToplevel(v)
+        dialogo.title("Confirmar")
+        dialogo.geometry("360x180")
+        dialogo.resizable(False, False)
+        dialogo.configure(fg_color="#0F2040")
+        dialogo.grab_set()
+        dialogo.focus()
+
+        ctk.CTkLabel(dialogo, text="¿Eliminar este nadador?",
+                     font=ctk.CTkFont(size=16, weight="bold"),
+                     text_color="#E8F4FD").pack(pady=(24, 8))
+
+        ctk.CTkLabel(dialogo, text=nadador_nombre,
+                     font=ctk.CTkFont(size=13),
+                     text_color="#FF6B6B").pack(pady=(0, 20))
+
+        btn_row = ctk.CTkFrame(dialogo, fg_color="transparent")
+        btn_row.pack()
+
+        def eliminar():
+            ok = eliminar_nadador(nadador_id, nadador["entrenador_id"])
+            dialogo.destroy()
+            if ok:
+                lbl.configure(text="✅ Nadador eliminado", text_color="#1ABC9C")
+                mostrar_splash_dado_baja(v)
+                v.after(1500, v.destroy)  # cierra el perfil después de 1.5s
+            else:
+                talk("Error al eliminar el nadador")
+                lbl.configure(text="❌ Error al eliminar", text_color="red")
+
+        ctk.CTkButton(btn_row, text="Sí, eliminar", fg_color="#E74C3C",
+                      hover_color="#C0392B", width=130,
+                      command=eliminar).pack(side="left", padx=8)
+
+        ctk.CTkButton(btn_row, text="Cancelar", fg_color="#2C3E50",
+                      hover_color="#1A252F", width=130,
+                      command=dialogo.destroy).pack(side="left", padx=8)
+
+    # ================= BOTONES =================
+    btns = ctk.CTkFrame(cnt, fg_color="transparent")
+    btns.pack(pady=(0, 20))
+
+    ctk.CTkButton(btns, text="🗑️  Eliminar nadador", width=360, height=38,
+                  fg_color="#E74C3C", hover_color="#C0392B",
+                  font=ctk.CTkFont(size=13, weight="bold"),
+                  command=confirmar_eliminar).pack(pady=(0, 6))
+
+    ctk.CTkButton(btns, text="Cerrar", width=360, height=38,
+                  fg_color="#2C3E50", hover_color="#1A252F",
+                  command=v.destroy).pack()

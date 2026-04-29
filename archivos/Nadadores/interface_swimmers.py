@@ -4,8 +4,11 @@ from customtkinter import CTkImage
 from archivos.Asistente_voz.asistente import talk
 from archivos.metricas_rendimiento.interface_stadistics import personal_statistics_interface_swimmer
 from archivos.Lesion.verificacion_lesionados import interfaz_validar_para_lesion
+from archivos.Nadadores.info_swimer_profile import profile_swimmer
 
-def interfaz_nadador():
+def interfaz_nadador(nadador_actual):
+    nadador_id = nadador_actual["id"]
+    nadador_nombre = nadador_actual["nombre"]
     ventana = ctk.CTk()
     ventana.title("Cobaj Sports — Panel Nadador")
     ventana.geometry("520x600")
@@ -103,8 +106,8 @@ def interfaz_nadador():
 
     # ===================== BOTONES =====================
     botones = [
-        ("👤  Mi perfil",            "#1A3A6B", "#00A8D6", None),
-        ("📊  Mis estadísticas",     "#2A2000", "#D4A030", lambda: personal_statistics_interface_swimmer()),
+        ("👤  Mi perfil",            "#1A3A6B", "#00A8D6", lambda: profile_swimmer(nadador_actual, ventana)),
+        ("📊  Mis estadísticas",     "#2A2000", "#D4A030", lambda: personal_statistics_interface_swimmer(nadador_actual, ventana)),
         ("🩹  Mis lesiones",         "#1E0A35", "#9333EA", lambda: interfaz_validar_para_lesion(root=ventana)),
     ]
 

@@ -61,8 +61,8 @@ def interfaz_general(entrenador_actual):
 
     botones = [
         ("Registrar nadador",                "#0A84FF",lambda: interfaz_registrar_nadador(ventana, entrenador_actual)),
-        ("Mis nadadores",                    "#4D6533", lambda: interfaz_ver_nadadores(entrenador_id=entrenador_actual["id"])),
-        ("Ver estadísticas del nadador",     "#34C759", lambda: interfaz_estadisticas()),
+        ("Mis nadadores",                    "#4D6533", lambda: interfaz_ver_nadadores(entrenador=entrenador_actual, root=ventana)),
+        ("Ver estadísticas del nadador",     "#34C759", lambda: interfaz_estadisticas(entrenador=entrenador_actual, root=ventana)),
         ("Eliminar nadador",                 "#FF3B30", lambda: interfaz_eliminar_nadador(entrenador=entrenador_actual, root=ventana)),
         ("Registro de sesión",               "#AF52DE", lambda: interfaz_validar_lesion(ventana)),
         ("Registrar nadador lesionado",      "#D952DE", lambda: interfaz_validar_para_lesion(ventana)),

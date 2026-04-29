@@ -3,96 +3,97 @@ from tkinter import messagebox
 from PIL import Image, ImageFilter
 from customtkinter import CTkImage
 from archivos.Asistente_voz.asistente import talk
-from Backend.funcionamiento_logica_modulos.nadadores import buscar_nadador_por_codigo,registrar_nadador
-#aqui el entrenador podra registrar y ver a sus alumnos, aqui podra ver a los alumnos que tiene registrados, y registrar a nuevos alumnos, ademas de eliminar a los alumnos que ya no entrenan con el
+from Backend.funcionamiento_logica_modulos.nadadores import buscar_nadador_por_codigo_global, vincular_nadador_entrenador,obtener_nadadores
+#aqui ,el entrenador podra registrar y ver a sus alumnos, aqui podra ver a los alumnos que tiene registrados, y registrar a nuevos alumnos, ademas de eliminar a los alumnos que ya no entrenan con el
+# Arreglo compartido en memoria — persiste mientras la app esté abierta
+equipo_actual = []
+
 def interfaz_registrar_nadador(root, entrenador):
-    ventana = ctk.CTkToplevel(root) 
+    ventana = ctk.CTkToplevel(root)
     entrenador_id = entrenador["id"]
     entrenador_nombre = entrenador["nombre"]
-    ventana.title("Registrar Nadador")
+    ventana.title("Agregar Nadador al Equipo")
     ventana.geometry("520x500")
+
+    # Carga nadadores que ya tenía este entrenador
+    equipo_actual.clear()
+    equipo_actual.extend(obtener_nadadores(entrenador_id))
 
     # ===================== FONDO =====================
     try:
         img_fondo = Image.open("Backgrounds/fondo7.webp")
         bg_ref = [None]
-
         fondo_lbl = ctk.CTkLabel(ventana, text="")
         fondo_lbl.place(x=0, y=0, relwidth=1, relheight=1)
         fondo_lbl.lower()
 
         def actualizar(event=None):
-            w = ventana.winfo_width()
-            h = ventana.winfo_height()
-
+            w, h = ventana.winfo_width(), ventana.winfo_height()
             if w < 100 or h < 100:
                 return
-
             resized = img_fondo.resize((w, h))
             bg_ref[0] = CTkImage(light_image=resized, size=(w, h))
             fondo_lbl.configure(image=bg_ref[0])
 
         ventana.bind("<Configure>", actualizar)
         ventana.after(100, actualizar)
-
     except Exception as e:
         print("Error fondo:", e)
 
     # ===================== CARD =====================
-    card = ctk.CTkFrame(
-        ventana,
-        width=320,
-        height=400,
-        corner_radius=24,
-        fg_color="#080808",
-        border_width=1,
-        border_color="#151516"
-    )
+    card = ctk.CTkFrame(ventana, width=320, height=340,
+                        corner_radius=24, fg_color="#080808",
+                        border_width=1, border_color="#151516")
     card.place(relx=0.5, rely=0.5, anchor="center")
-    card.pack_propagate(False)
 
     contenido = ctk.CTkFrame(card, fg_color="transparent")
-    contenido.pack(expand=True, fill="both", padx=28, pady=24)
+    contenido.place(x=0, y=0, relwidth=1, relheight=1)
 
-    ctk.CTkLabel(contenido, text=f" Entrenador: {entrenador_nombre}").pack(pady=10)
+    ctk.CTkLabel(contenido, text=f"Entrenador: {entrenador_nombre}",
+                 font=ctk.CTkFont(size=13), text_color="#AAB8C2").pack(pady=(24, 4))
 
-    e_nombre = ctk.CTkEntry(contenido, placeholder_text="Nombre",width=200)
-    e_nombre.pack(fill="x", pady=5)
+    ctk.CTkLabel(contenido, text="Ingresa el código del nadador",
+                 font=ctk.CTkFont(size=15, weight="bold"),
+                 text_color="#E8F4FD").pack(pady=(0, 16))
 
-    e_codigo = ctk.CTkEntry(contenido, placeholder_text="Código",width=200)
-    e_codigo.pack(fill="x", pady=5)
+    e_codigo = ctk.CTkEntry(contenido, placeholder_text="Código de acceso", width=220, height=38)
+    e_codigo.pack(pady=5)
 
-    lbl = ctk.CTkLabel(contenido, text="")
-    lbl.pack(pady=10)
+    lbl = ctk.CTkLabel(contenido, text="", font=ctk.CTkFont(size=12))
+    lbl.pack(pady=8)
 
-    def registrar():
-        nombre = e_nombre.get().strip()
+    def agregar():
         codigo = e_codigo.get().strip()
-
-        if not nombre or not codigo:
-            lbl.configure(text="Completa los campos", text_color="orange")
+        if not codigo:
+            lbl.configure(text="Ingresa un código", text_color="orange")
             return
 
-        if buscar_nadador_por_codigo(codigo, entrenador_id):
-            lbl.configure(text="Código ya existe", text_color="red")
+        if any(n["codigo_acceso"] == codigo for n in equipo_actual):
+            talk(f"El nadador {entrenador_nombre} ya está en tu equipo, no puedes agregarlo dos veces")
+            lbl.configure(text="Ya está en tu equipo", text_color="orange")
             return
 
-        registrar_nadador(nombre, codigo, entrenador_id)
-        lbl.configure(text="Registrado", text_color="green")
+        nadador = buscar_nadador_por_codigo_global(codigo)
+        if not nadador:
+            talk("El codigo que ingresaste no corresponde a ningún nadador registrado, intente de nuevo")
+            lbl.configure(text="Código no encontrado", text_color="red")
+            return
 
-    ctk.CTkButton(contenido, text="Registrar", command=registrar,bg_color="#008000").pack(pady=10)
-    ctk.CTkButton(contenido, text="Cerrar", command=ventana.destroy,bg_color="#921313").pack()
+        # Vincular en BD y agregar al arreglo
+        ok = vincular_nadador_entrenador(nadador["id"], entrenador_id)
+        if not ok:
+            lbl.configure(text="Error al vincular, intenta de nuevo", text_color="red")
+            return
 
+        equipo_actual.append(nadador)
+        e_codigo.delete(0, "end")
+        talk(f"Nadador {nadador['nombre']}  ha sido agregado a tu equipo {entrenador_nombre}")
+        lbl.configure(text=f"✅ {nadador['nombre']} agregado", text_color="green")
 
-# ===================== MAIN =====================
-if __name__ == "__main__":
-    root = ctk.CTk()  # 🔥 SOLO UNA VEZ
-    root.geometry("400x300")
+    ctk.CTkButton(contenido, text="Agregar al equipo", width=220, height=38,
+                  fg_color="#0072FF", hover_color="#005ACC",
+                  command=agregar).pack(pady=6)
 
-    ctk.CTkButton(
-        root,
-        text="Abrir registro",
-        command=lambda: interfaz_registrar_nadador(root)
-    ).pack(pady=50)
-
-    root.mainloop()
+    ctk.CTkButton(contenido, text="Cerrar", width=220, height=36,
+                  fg_color="#2C3E50", hover_color="#1A252F",
+                  command=ventana.destroy).pack(pady=(0, 20))

@@ -131,3 +131,84 @@ def buscar_nadador_por_codigo(codigo, entrenador_id):
 
     finally:
         conn.close()
+
+def buscar_nadador_por_codigo_global(codigo):
+    conn = obtener_conexion()
+    if not conn:
+        return None
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT id, nombre, codigo_acceso
+            FROM nadadores
+            WHERE codigo_acceso = %s
+        """, (codigo,))
+        res = cur.fetchone()
+        print(f"DB resultado: {res}")  # ← agrega esto también
+        return {"id": res[0], "nombre": res[1], "codigo_acceso": res[2]} if res else None
+    except Exception as e:
+        print("❌ Error:", e)
+        return None
+    finally:
+        conn.close()
+
+def vincular_nadador_entrenador(nadador_id, entrenador_id):
+    conn = obtener_conexion()
+    if not conn:
+        return False
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+            UPDATE nadadores
+            SET entrenador_id = %s
+            WHERE id = %s
+        """, (entrenador_id, nadador_id))
+        conn.commit()
+        return True
+    except psycopg2.Error as e:
+        print("❌ Error:", e)
+        return False
+    finally:
+        conn.close()
+
+def desvincular_nadador_entrenador(nadador_id, entrenador_id):
+    conn = obtener_conexion()
+    if not conn:
+        return False
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+            UPDATE nadadores
+            SET entrenador_id = NULL
+            WHERE id = %s AND entrenador_id = %s
+        """, (nadador_id, entrenador_id))
+        conn.commit()
+        return cur.rowcount > 0
+    except psycopg2.Error as e:
+        print("❌ Error al desvincular nadador:", e)
+        return False
+    finally:
+        conn.close()
+
+def obtener_nadador_por_id(nadador_id):
+    conn = obtener_conexion()
+    if not conn:
+        return None
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT id, nombre, edad, codigo_acceso, genero,
+                   peso, estatura, problema_respiratorio
+            FROM nadadores
+            WHERE id = %s AND activo = TRUE
+        """, (nadador_id,))
+        res = cur.fetchone()
+        if not res:
+            return None
+        cols = [d[0] for d in cur.description]
+        return dict(zip(cols, res))
+    except Exception as e:
+        print("❌ Error:", e)
+        return None
+    finally:
+        conn.close()

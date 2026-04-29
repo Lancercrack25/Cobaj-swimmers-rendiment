@@ -6,7 +6,6 @@ import os
 #librerias para las imagenes de fondo
 from PIL import Image, ImageFilter
 from customtkinter import CTkImage
-
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 #con esta línea evitamos que se creen los archivos pycache al ejecutar el programa
 sys.dont_write_bytecode = True
@@ -128,12 +127,13 @@ def login_entrenador_ui():
 
     SESSION["id"] = res[0]
     SESSION["rol"] = "entrenador"
-
-    messagebox.showinfo("Acceso", f"Bienvenido entrenador {res[1]}")
+    
+    talk(f"Bienvenido entrenador {res[1]} en unos momento  podras acceder a tu menú principal")
+    messagebox.showinfo("Acceso", f"Bienvenido {res[1]}")
     ventana.destroy()
     # 🔥 AQUÍ YA EXISTE Y SE PASA BIEN
     interfaz_general(entrenador_actual)
-
+    
 def login_nadador_ui():
     codigo = user_entry.get().strip()
     password = pass_entry.get().strip()
@@ -141,17 +141,26 @@ def login_nadador_ui():
     if not codigo or not password:
         messagebox.showerror("Error", "Completa todos los campos")
         return
-    #aqui se manda a llamar al backend para poder verificar que ambos campos esten en la base de datos
+
     res = login_nadador(codigo, password)
 
-    if res:
-        SESSION["id"] = res[0]
-        SESSION["rol"] = "nadador"
-        messagebox.showinfo("Acceso", f"Bienvenido nadador {res[1]}")
-        ventana.destroy()
-        interfaz_nadador()
-    else:
+    if not res:
         messagebox.showerror("Error", "Credenciales inválidas")
+        return
+
+    # ✅ Se define ANTES de usarlo
+    nadador_actual = {
+        "id": res[0],
+        "nombre": res[1]
+    }
+
+    SESSION["id"] = res[0]
+    SESSION["rol"] = "nadador"
+
+    talk(f"Bienvenido{res[1]} en unos momentos accederas a la sección de nadadores")
+    messagebox.showinfo("Acceso", f"Bienvenido {res[1]}")
+    ventana.destroy()
+    interfaz_nadador(nadador_actual)
 
 def ventana_registro():
     registro = ctk.CTkToplevel(ventana)
@@ -220,6 +229,7 @@ def ventana_registro():
         ok, msg = registrar_entrenador(nombre, edad, exp, esp, pwd)
 
         if ok:
+            talk(f"Entrenador registrado exitosamente, ya puedes iniciar sesión")
             messagebox.showinfo("Registro exitoso", msg)
             registro.destroy()
         else:
