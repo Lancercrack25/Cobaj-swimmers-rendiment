@@ -3,6 +3,7 @@ from PIL import Image, ImageFilter
 from customtkinter import CTkImage
 from archivos.Asistente_voz.asistente import talk
 from archivos.metricas_rendimiento.interface_stadistics import personal_statistics_interface_swimmer
+from archivos.Lesion.verificacion_lesionados import interfaz_validar_para_lesion
 
 def interfaz_nadador():
     ventana = ctk.CTk()
@@ -104,7 +105,7 @@ def interfaz_nadador():
     botones = [
         ("👤  Mi perfil",            "#1A3A6B", "#00A8D6", None),
         ("📊  Mis estadísticas",     "#2A2000", "#D4A030", lambda: personal_statistics_interface_swimmer()),
-        ("🩹  Mis lesiones",         "#1E0A35", "#9333EA", None),
+        ("🩹  Mis lesiones",         "#1E0A35", "#9333EA", lambda: interfaz_validar_para_lesion(root=ventana)),
     ]
 
     for texto, color, hover, cmd in botones:

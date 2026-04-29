@@ -63,7 +63,7 @@ def actualizar_fondo(event=None):
 def limpiar():
     user_entry.delete(0, 'end')
     pass_entry.delete(0, 'end')
-
+#esta funcion cambia la interfaz de login de entrenador a nadador, cambia el fondo, los textos y los botones, ademas de agregar un nuevo boton para registrar nadadores
 def cambiar_a_nadador():
     global ruta_fondo
     limpiar()
@@ -105,7 +105,7 @@ def cambiar_a_entrenador():
         text="Registrarse como entrenador",
         command=ventana_registro
     )
-
+#aqui se define la función para el login del entrenador, se obtiene el nombre y la contraseña de los campos de texto, se verifica que no estén vacíos y luego se llama a la función de login del backend, si el login es exitoso se guarda la información del entrenador en una variable global y se muestra un mensaje de bienvenida, luego se cierra la ventana de login y se abre la interfaz general del entrenador
 def login_entrenador_ui():
     nombre = user_entry.get().strip()
     password = pass_entry.get().strip()
