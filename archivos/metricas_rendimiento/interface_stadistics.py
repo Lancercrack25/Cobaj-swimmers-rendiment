@@ -17,10 +17,10 @@ def interfaz_estadisticas():
     boton_checar = ctk.CTkButton(ventana, text="Checar estadística individual", fg_color="#9C4C0A", command=lambda: personal_statistics_interface())
     boton_checar.pack(pady=8)
 
-    boton_global = ctk.CTkButton(ventana, text="Estadisticas globales", fg_color="#C9BD10", command=lambda: global_statistics_interface())
+    boton_global = ctk.CTkButton(ventana, text="Estadisticas globales", fg_color="#6D1575", command=lambda: global_statistics_interface())
     boton_global.pack(pady=8)
 
-    boton_cerrar = ctk.CTkButton(ventana, text="Regresar", fg_color="#C91010", command=lambda: ventana.destroy())
+    boton_cerrar = ctk.CTkButton(ventana, text="Regresar", fg_color="#1051C9", command=lambda: ventana.destroy())
     boton_cerrar.pack(pady=8)
 
     ventana.mainloop()

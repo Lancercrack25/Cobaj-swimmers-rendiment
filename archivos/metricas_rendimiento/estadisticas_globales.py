@@ -15,6 +15,6 @@ def global_statistics_interface():
     input_nickname = ctk.CTkEntry(ventana, width=200, placeholder_text="Ingrese el nombre del Entrenador")
     input_nickname.pack(pady=5)
 
-    boton_checar = ctk.CTkButton(ventana, text="Checar estadísticas globales", fg_color="#C7A534")
+    boton_checar = ctk.CTkButton(ventana, text="Checar estadísticas globales", fg_color="#346FC7")
     boton_checar.pack(pady=8)
     ventana.mainloop()

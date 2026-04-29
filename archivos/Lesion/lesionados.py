@@ -103,4 +103,3 @@ def interfaz_registrar_lesion():
     ).pack(fill="x")
 
     ventana.mainloop()
-

@@ -38,15 +38,12 @@ ruta_fondo = "Backgrounds/fondo3.webp"
 
 def actualizar_fondo(event=None):
     global bg, ruta_fondo
-
     w = ventana.winfo_width()
     h = ventana.winfo_height()
-
     if w < 100 or h < 100:
         return
 
     base = Image.open(ruta_fondo).resize((w, h)).convert("RGBA")
-
     cx = (w - CW) // 2
     cy = (h - CH) // 2
 

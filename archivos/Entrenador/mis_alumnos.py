@@ -5,7 +5,6 @@ from customtkinter import CTkImage
 from archivos.Asistente_voz.asistente import talk
 from Backend.funcionamiento_logica_modulos.nadadores import buscar_nadador_por_codigo,registrar_nadador
 #aqui el entrenador podra registrar y ver a sus alumnos, aqui podra ver a los alumnos que tiene registrados, y registrar a nuevos alumnos, ademas de eliminar a los alumnos que ya no entrenan con el
-
 def interfaz_registrar_nadador(root, entrenador):
     ventana = ctk.CTkToplevel(root) 
     entrenador_id = entrenador["id"]
@@ -55,7 +54,7 @@ def interfaz_registrar_nadador(root, entrenador):
     contenido = ctk.CTkFrame(card, fg_color="transparent")
     contenido.pack(expand=True, fill="both", padx=28, pady=24)
 
-    ctk.CTkLabel(contenido, text=f" Entrenador: {entrenador_nombre}", size=16).pack(pady=10)
+    ctk.CTkLabel(contenido, text=f" Entrenador: {entrenador_nombre}").pack(pady=10)
 
     e_nombre = ctk.CTkEntry(contenido, placeholder_text="Nombre",width=200)
     e_nombre.pack(fill="x", pady=5)
@@ -81,8 +80,8 @@ def interfaz_registrar_nadador(root, entrenador):
         registrar_nadador(nombre, codigo, entrenador_id)
         lbl.configure(text="Registrado", text_color="green")
 
-    ctk.CTkButton(contenido, text="Registrar", command=registrar).pack(pady=10)
-    ctk.CTkButton(contenido, text="Cerrar", command=ventana.destroy).pack()
+    ctk.CTkButton(contenido, text="Registrar", command=registrar,bg_color="#008000").pack(pady=10)
+    ctk.CTkButton(contenido, text="Cerrar", command=ventana.destroy,bg_color="#921313").pack()
 
 
 # ===================== MAIN =====================
