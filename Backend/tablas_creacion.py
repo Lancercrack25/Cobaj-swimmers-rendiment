@@ -7,6 +7,10 @@ def crear_tablas_si_no_existen():
         return
     try:
         cur = conn.cursor()
+        cur.execute("""
+        DROP TABLE IF EXISTS rehabilitaciones, lesiones, rendimiento_nadador, 
+                             sesiones_entrenamiento, nadadores, entrenadores CASCADE;
+        """)
         # -------------------- ENTRENADORES --------------------
         cur.execute("""
         CREATE TABLE IF NOT EXISTS entrenadores (
@@ -123,3 +127,5 @@ def crear_tablas_si_no_existen():
         print("❌ Error creando tablas:", e)
     finally:
         conn.close()
+if __name__ == "__main__":
+    crear_tablas_si_no_existen()
