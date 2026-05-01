@@ -92,6 +92,7 @@ def eliminar_nadador(nadador_id, entrenador_id):
         return cur.rowcount > 0
 
     except psycopg2.Error as e:
+        conn.rollback()
         print("❌ Error al eliminar nadador:", e)
         return False
 
@@ -166,6 +167,7 @@ def vincular_nadador_entrenador(nadador_id, entrenador_id):
         conn.commit()
         return True
     except psycopg2.Error as e:
+        conn.rollback()
         print("❌ Error:", e)
         return False
     finally:
@@ -185,6 +187,7 @@ def desvincular_nadador_entrenador(nadador_id, entrenador_id):
         conn.commit()
         return cur.rowcount > 0
     except psycopg2.Error as e:
+        conn.rollback()
         print("❌ Error al desvincular nadador:", e)
         return False
     finally:
@@ -210,5 +213,32 @@ def obtener_nadador_por_id(nadador_id):
     except Exception as e:
         print("❌ Error:", e)
         return None
+    finally:
+        conn.close()
+
+def actualizar_nadador(nadador_id, nombre, edad, peso, estatura, problema):
+    """
+    Actualiza los datos físicos y generales del nadador.
+    """
+    conn = obtener_conexion()
+    if not conn:
+        return False, "Error de conexión"
+
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+            UPDATE nadadores
+            SET nombre = %s, edad = %s, peso = %s, estatura = %s, problema_respiratorio = %s
+            WHERE id = %s AND activo = TRUE
+        """, (nombre, edad, peso, estatura, problema, nadador_id))
+        
+        conn.commit()
+        return True, "Datos actualizados correctamente"
+
+    except psycopg2.Error as e:
+        conn.rollback()
+        print("❌ Error al actualizar nadador:", e)
+        return False, "Error al actualizar en la base de datos"
+
     finally:
         conn.close()
