@@ -7,10 +7,6 @@ def crear_tablas_si_no_existen():
         return
     try:
         cur = conn.cursor()
-        cur.execute("""
-        DROP TABLE IF EXISTS rehabilitaciones, lesiones, rendimiento_nadador, 
-                             sesiones_entrenamiento, nadadores, entrenadores CASCADE;
-        """)
         # -------------------- ENTRENADORES --------------------
         cur.execute("""
         CREATE TABLE IF NOT EXISTS entrenadores (

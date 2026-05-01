@@ -131,7 +131,6 @@ def login_entrenador_ui():
     talk(f"Bienvenido entrenador {res[1]} en unos momento  podras acceder a tu menú principal")
     messagebox.showinfo("Acceso", f"Bienvenido {res[1]}")
     ventana.destroy()
-    # 🔥 AQUÍ YA EXISTE Y SE PASA BIEN
     interfaz_general(entrenador_actual)
     
 def login_nadador_ui():

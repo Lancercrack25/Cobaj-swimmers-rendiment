@@ -100,24 +100,12 @@ def interfaz_ver_nadadores(entrenador, root):
             ctk.CTkLabel(row, text=n["nombre"], font=ctk.CTkFont(size=13, weight="bold"),
                          text_color="#E8F4FD", anchor="w").pack(side="left", fill="x", expand=True)
 
-            ctk.CTkButton(
-                row, text="✕", width=28, height=28,
-                fg_color="#8B0000", hover_color="#CC0000",
-                font=ctk.CTkFont(size=11, weight="bold"),
-                command=lambda nid=n["id"]: eliminar(nid)
-            ).pack(side="right", padx=(0, 6))
-
             badge = ctk.CTkFrame(row, fg_color="#0072FF", corner_radius=6)
             badge.pack(side="right", padx=4)
             ctk.CTkLabel(badge, text=n["codigo_acceso"],
                          font=ctk.CTkFont(size=11, weight="bold"),
                          text_color="white", padx=8, pady=2).pack()
-
-    def eliminar(nadador_id):
-        desvincular_nadador_entrenador(nadador_id, entrenador_id)  # ← limpia BD
-        equipo_actual[:] = [n for n in equipo_actual if n["id"] != nadador_id]
-        filtrar()
-
+            
     def filtrar(event=None):
         txt = e_buscar.get().strip().lower()
         if txt:
