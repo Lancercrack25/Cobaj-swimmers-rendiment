@@ -1,4 +1,6 @@
 import customtkinter as ctk
+import pandas as pd
+import matplotlib.pyplot as plt
 from tkinter import messagebox
 from archivos.Asistente_voz.asistente import talk
 from PIL import Image, ImageFilter
@@ -29,7 +31,7 @@ def fondo_card(ventana, card):
         print("Error fondo:", e)
 
 
-# ================= ESTADÍSTICAS ENTRENADOR =================
+# ================= interfaz que puede ver el ENTRENADOR =================
 def interfaz_estadisticas(entrenador, root):
     v = ctk.CTkToplevel(root)
     v.title("Cobaj Sports — Estadísticas")
@@ -72,7 +74,7 @@ def interfaz_estadisticas(entrenador, root):
                   height=44, corner_radius=12, anchor="w",
                   fg_color="#1E0A35", hover_color="#9333EA",
                   font=ctk.CTkFont(size=14, weight="bold"),
-                  command=lambda: global_statistics_interface()
+                  command=lambda: global_statistics_interface(v)
                   ).pack(fill="x", pady=6)
 
     ctk.CTkFrame(cnt, height=1, fg_color="#1E4080").pack(fill="x", padx=28, pady=(12, 6))
@@ -82,7 +84,7 @@ def interfaz_estadisticas(entrenador, root):
                   command=v.destroy).pack(pady=(0, 20))
 
 
-# ================= ESTADÍSTICAS INDIVIDUALES ENTRENADOR =================
+# ================= ESTADÍSTICAS INDIVIDUALES  del nadador que podra visualizar el ENTRENADOR =================
 def personal_statistics_interface(entrenador, root):
     v = ctk.CTkToplevel(root)
     v.title("Cobaj Sports — Estadística Individual")

@@ -13,10 +13,8 @@ def interfaz_validar_para_lesion(root):
     ventana.configure(fg_color="#000000")
     ventana.update_idletasks()
 
-    # ================= FONDO =================
     try:
         img_fondo = Image.open("Backgrounds/fondo8.webp")
-
         fondo_lbl = ctk.CTkLabel(ventana, text="")
         fondo_lbl.place(relx=0, rely=0, relwidth=1, relheight=1)
 
@@ -37,7 +35,6 @@ def interfaz_validar_para_lesion(root):
     except Exception as e:
         print("Error fondo:", e)
 
-    # ================= CARD =================
     card = ctk.CTkFrame(
         ventana,
         width=430,
@@ -52,47 +49,17 @@ def interfaz_validar_para_lesion(root):
     cnt = ctk.CTkFrame(card, fg_color="transparent")
     cnt.place(x=0, y=0, relwidth=1, relheight=1)
 
-    # ================= AVATAR =================
-    av = ctk.CTkFrame(
-        cnt,
-        width=72,
-        height=72,
-        corner_radius=36,
-        fg_color="#0072FF",
-        border_width=2,
-        border_color="#00C6FF"
-    )
+    av = ctk.CTkFrame(cnt, width=72, height=72, corner_radius=36, fg_color="#0072FF", border_width=2, border_color="#00C6FF")
     av.pack(pady=(24, 8))
     av.pack_propagate(False)
+    ctk.CTkLabel(av, text="🏊", font=("Arial", 32), fg_color="transparent").place(relx=0.5, rely=0.5, anchor="center")
 
-    ctk.CTkLabel(
-        av,
-        text="🏊",
-        font=("Arial", 32),
-        fg_color="transparent"
-    ).place(relx=0.5, rely=0.5, anchor="center")
-
-    # ================= TITULO =================
-    ctk.CTkLabel(
-        cnt,
-        text="Verificación de Lesión",
-        font=ctk.CTkFont(size=22, weight="bold"),
-        text_color="#E8F4FD"
-    ).pack(pady=(0, 4))
-
+    ctk.CTkLabel(cnt, text="Verificación de Lesión", font=ctk.CTkFont(size=22, weight="bold"), text_color="#E8F4FD").pack(pady=(0, 4))
     ctk.CTkFrame(cnt, height=2, fg_color="#0072FF").pack(fill="x", padx=28, pady=10)
 
-    # ================= INPUT =================
-    e_codigo = ctk.CTkEntry(
-        cnt,
-        placeholder_text="Código del nadador",
-        width=340,
-        height=42,
-        font=ctk.CTkFont(size=14)
-    )
+    e_codigo = ctk.CTkEntry(cnt, placeholder_text="Código del nadador", width=340, height=42, font=ctk.CTkFont(size=14))
     e_codigo.pack(pady=(10, 6))
 
-    # ================= RESULTADO =================
     lbl_resultado = ctk.CTkLabel(cnt, text="", font=ctk.CTkFont(size=13))
     lbl_resultado.pack(pady=6)
 
@@ -102,7 +69,6 @@ def interfaz_validar_para_lesion(root):
     lbl_det = ctk.CTkLabel(res_card, text="", font=ctk.CTkFont(size=12), text_color="#AAB8C2")
     lbl_det.pack(pady=(2, 10))
 
-    # ================= LOGICA =================
     def verificar():
         codigo = e_codigo.get().strip()
 
@@ -115,11 +81,12 @@ def interfaz_validar_para_lesion(root):
         res_card.pack(fill="x", padx=28, pady=6)
         lbl_res.configure(text=f"Nadador: {codigo}", text_color="#E8F4FD")
         lbl_det.configure(text="¡Es momento de registrar una nueva lesión!")
-        ventana.after(800, lambda: interfaz_registrar_lesion(ventana))
+
+        # ← solo pasa root, no ventana ni codigo
+        ventana.after(800, lambda: interfaz_registrar_lesion(root))
 
     e_codigo.bind("<Return>", lambda e: verificar())
 
-    # ================= BOTONES =================
     ctk.CTkButton(
         cnt,
         text="Verificar y Registrar Lesión",

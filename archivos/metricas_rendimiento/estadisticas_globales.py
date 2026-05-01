@@ -1,14 +1,17 @@
 import customtkinter as ctk
+import pandas as pd
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from tkinter import messagebox
 from archivos.Asistente_voz.asistente import talk
 from PIL import Image, ImageFilter
 from customtkinter import CTkImage
+from Backend.funcionamiento_logica_modulos.metricas import obtener_estadisticas_globales
 
 def global_statistics_interface(root):
     ventana = ctk.CTkToplevel(root)
     ventana.title("Estadísticas globales")
     ventana.geometry("520x500")
-    ventana.resizable(False, False)
 
     # ===================== FONDO =====================
     try:
@@ -23,10 +26,11 @@ def global_statistics_interface(root):
             w, h = ventana.winfo_width(), ventana.winfo_height()
             if w < 100 or h < 100:
                 return
-
             resized = img_fondo.resize((w, h))
             bg_ref[0] = CTkImage(light_image=resized, size=(w, h))
             fondo_lbl.configure(image=bg_ref[0])
+            fondo_lbl.lower()
+            card.lift()  # ← sube el card
 
         ventana.bind("<Configure>", actualizar)
         ventana.after(100, actualizar)
@@ -37,8 +41,8 @@ def global_statistics_interface(root):
     # ===================== CARD =====================
     card = ctk.CTkFrame(
         ventana,
-        width=340,
-        height=300,
+        width=440,
+        height=420,
         corner_radius=24,
         fg_color="#080808",
         border_width=1,
@@ -59,14 +63,14 @@ def global_statistics_interface(root):
 
     ctk.CTkLabel(
         contenido,
-        text="Consulta el rendimiento general",
+        text="Consulta el rendimiento general del equipo",
         font=ctk.CTkFont(size=12),
         text_color="#AAB8C2"
     ).pack(pady=(0, 15))
 
     input_nickname = ctk.CTkEntry(
         contenido,
-        width=220,
+        width=340,
         height=38,
         placeholder_text="Nombre del entrenador"
     )
@@ -79,20 +83,43 @@ def global_statistics_interface(root):
     )
     lbl_estado.pack(pady=8)
 
+    # ===================== RESULTADOS =====================
+    resultado_frame = ctk.CTkFrame(contenido, fg_color="#0A1A2A", corner_radius=12, border_width=1, border_color="#1E4080")
+    lbl_resultado = ctk.CTkLabel(resultado_frame, text="", font=ctk.CTkFont(size=13), text_color="#E8F4FD", justify="left")
+    lbl_resultado.pack(padx=16, pady=12)
+
     def consultar():
         nombre = input_nickname.get().strip()
 
         if not nombre:
-            lbl_estado.configure(text="Ingresa un nombre", text_color="orange")
+            lbl_estado.configure(text="⚠️ Ingresa un nombre", text_color="orange")
+            resultado_frame.pack_forget()
             return
 
-        # 🔴 Aquí luego conectas tu lógica real
-        lbl_estado.configure(text=f"Consultando estadísticas de {nombre}...", text_color="#1ABC9C")
+        estadisticas = obtener_estadisticas_globales(nombre)
+
+        if not estadisticas:
+            lbl_estado.configure(text=f"Sin datos para: {nombre}", text_color="#FF6B6B")
+            resultado_frame.pack_forget()
+            return
+
+        lbl_estado.configure(text=f"✅ Estadísticas de {nombre}", text_color="#1ABC9C")
+
+        texto = (
+            f"Total sesiones: {estadisticas.get('total_sesiones', 0)}\n"
+            f"Total nadadores: {estadisticas.get('total_nadadores', 0)}\n"
+            f"Distancia promedio: {estadisticas.get('distancia_promedio', 0):.2f} m\n"
+            f"Tiempo promedio: {estadisticas.get('tiempo_promedio', 0):.2f} seg\n"
+            f"Ritmo promedio: {estadisticas.get('ritmo_promedio', 0):.4f}"
+        )
+
+        lbl_resultado.configure(text=texto)
+        resultado_frame.pack(fill="x", padx=28, pady=6)
 
     ctk.CTkButton(
         contenido,
         text="Consultar estadísticas",
-        width=220,
+        width=340,
         height=38,
         fg_color="#0072FF",
         hover_color="#005ACC",
@@ -102,7 +129,7 @@ def global_statistics_interface(root):
     ctk.CTkButton(
         contenido,
         text="Cerrar",
-        width=220,
+        width=340,
         height=36,
         fg_color="#2C3E50",
         hover_color="#1A252F",

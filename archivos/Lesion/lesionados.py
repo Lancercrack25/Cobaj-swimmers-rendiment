@@ -4,7 +4,7 @@ from archivos.Asistente_voz.asistente import talk
 from PIL import Image, ImageFilter
 from customtkinter import CTkImage
 
-def _aplicar_fondo(ventana):
+def _aplicar_fondo(ventana, card=None):
     try:
         img_fondo = Image.open("Backgrounds/fondo11.webp")
 
@@ -16,13 +16,12 @@ def _aplicar_fondo(ventana):
             w, h = ventana.winfo_width(), ventana.winfo_height()
             if w < 100 or h < 100:
                 return
-
             resized = img_fondo.resize((w, h))
-
-            # 🔥 CLAVE: guardar referencia en la ventana
             ventana._bg_img = CTkImage(light_image=resized, size=(w, h))
             fondo_lbl.configure(image=ventana._bg_img)
             fondo_lbl.lower()
+            if card:
+                card.lift()
 
         ventana.bind("<Configure>", actualizar)
         ventana.after(100, actualizar)
@@ -38,18 +37,19 @@ def interfaz_registrar_lesion(root):
     ventana.resizable(False, False)
     ventana.configure(fg_color="#0A1628")
 
-    _aplicar_fondo(ventana)
-
     # ================= CARD =================
     card = ctk.CTkFrame(
         ventana,
         width=440,
         height=610,
         corner_radius=24,
-        fg_color="#0F2040DD"
+        fg_color="#080808"
     )
     card.place(relx=0.5, rely=0.5, anchor="center")
     card.pack_propagate(False)
+
+    # ← fondo se aplica después del card para poder pasarlo
+    _aplicar_fondo(ventana, card)
 
     cnt = ctk.CTkFrame(card, fg_color="transparent")
     cnt.pack(expand=True, fill="both", padx=28, pady=22)
@@ -66,8 +66,7 @@ def interfaz_registrar_lesion(root):
 
     # ================= CAMPOS =================
     def campo(texto):
-        ctk.CTkLabel(cnt, text=texto,
-                     text_color="#7BA7C7").pack(fill="x")
+        ctk.CTkLabel(cnt, text=texto, text_color="#7BA7C7").pack(fill="x")
         e = ctk.CTkEntry(cnt, placeholder_text=texto)
         e.pack(fill="x", pady=5)
         return e
