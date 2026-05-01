@@ -135,7 +135,7 @@ def interfaz_validar_lesion(root):
         height=42,
         fg_color="#1ABC9C",
         hover_color="#17A589",
-        command=lambda: [ventana.destroy(), interfaz_registro_sesion(root)]
+        command=lambda: [interfaz_registro_sesion(ventana, e_codigo.get().strip())]
     ).pack(pady=5)
 
     ctk.CTkButton(

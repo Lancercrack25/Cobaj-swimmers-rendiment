@@ -29,7 +29,7 @@ def interfaz_validar_para_lesion(root):
             ventana._bg_img = CTkImage(light_image=resized, size=(w, h))
             fondo_lbl.configure(image=ventana._bg_img)
             fondo_lbl.lower()
-            card.lift()  # ✅ card siempre encima
+            card.lift()
 
         ventana.bind("<Configure>", actualizar)
         ventana.after(100, actualizar)
@@ -43,7 +43,7 @@ def interfaz_validar_para_lesion(root):
         width=430,
         height=500,
         corner_radius=24,
-        fg_color="#000000",     # ✅ sin alpha hex
+        fg_color="#000000",
         border_width=1,
         border_color="#1E4080"
     )
@@ -91,7 +91,6 @@ def interfaz_validar_para_lesion(root):
         font=ctk.CTkFont(size=14)
     )
     e_codigo.pack(pady=(10, 6))
-    e_codigo.bind("<Return>", lambda e: verificar())
 
     # ================= RESULTADO =================
     lbl_resultado = ctk.CTkLabel(cnt, text="", font=ctk.CTkFont(size=13))
@@ -112,28 +111,18 @@ def interfaz_validar_para_lesion(root):
             res_card.pack_forget()
             return
 
-        # --- Reemplaza con tu fuente real (BD, lista, etc.) ---
-        lesionados = {"NAD-001", "NAD-002"}
+        lbl_resultado.configure(text="📋 Redirigiendo al registro de lesión...", text_color="#22d3ee")
+        res_card.pack(fill="x", padx=28, pady=6)
+        lbl_res.configure(text=f"Nadador: {codigo}", text_color="#E8F4FD")
+        lbl_det.configure(text="¡Es momento de registrar una nueva lesión!")
+        ventana.after(800, lambda: interfaz_registrar_lesion(ventana))
 
-        res_card.pack_forget()
-
-        if codigo in lesionados:
-            lbl_resultado.configure(text="🚫 Lesión activa detectada", text_color="#FF6B6B")
-            res_card.pack(fill="x", padx=28, pady=6)
-            lbl_res.configure(text="⚠️ Lesión activa", text_color="#FF6B6B")
-            lbl_det.configure(text="Redirigiendo al registro de lesión...")
-            ventana.after(800, lambda: (ventana.destroy(), interfaz_registrar_lesion(root)))
-
-        else:
-            lbl_resultado.configure(text="✅ Sin lesiones activas", text_color="#1ABC9C")
-            res_card.pack(fill="x", padx=28, pady=6)
-            lbl_res.configure(text="✔ Sin lesiones", text_color="#1ABC9C")
-            lbl_det.configure(text="El nadador puede continuar")
+    e_codigo.bind("<Return>", lambda e: verificar())
 
     # ================= BOTONES =================
     ctk.CTkButton(
         cnt,
-        text="Verificar",
+        text="Verificar y Registrar Lesión",
         width=340,
         height=42,
         font=ctk.CTkFont(size=15, weight="bold"),
@@ -151,7 +140,3 @@ def interfaz_validar_para_lesion(root):
         hover_color="#1A252F",
         command=ventana.destroy
     ).pack(pady=(0, 20))
-
-    ventana.mainloop()
-
-

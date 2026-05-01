@@ -31,8 +31,8 @@ def _aplicar_fondo(ventana):
         print("Error fondo:", e)
 
 
-def interfaz_registrar_lesion():
-    ventana = ctk.CTk()
+def interfaz_registrar_lesion(root):
+    ventana = ctk.CTkToplevel(root)
     ventana.title("Cobaj Sports — Registrar Lesión")
     ventana.geometry("520x660")
     ventana.resizable(False, False)
@@ -91,15 +91,13 @@ def interfaz_registrar_lesion():
     ctk.CTkButton(
         cnt,
         text="Registrar lesión",
-        fg_color="#5A1010",
-        hover_color="#C0392B"
+        fg_color="#50BE10",
+        hover_color="#0DAF43"
     ).pack(fill="x", pady=10)
 
     ctk.CTkButton(
         cnt,
         text="Cancelar",
-        fg_color="#2A0A0A",
+        fg_color="#771111",
         command=ventana.destroy
     ).pack(fill="x")
-
-    ventana.mainloop()

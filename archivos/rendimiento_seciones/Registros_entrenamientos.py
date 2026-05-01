@@ -3,35 +3,26 @@ import customtkinter as ctk
 from archivos.Asistente_voz.asistente import talk
 from PIL import Image, ImageFilter
 from customtkinter import CTkImage
+from Backend.funcionamiento_logica_modulos.nadadores import buscar_nadador_por_codigo_global
 
-def interfaz_registro_sesion():
-    ventana = ctk.CTk()
+import customtkinter as ctk
+from archivos.Asistente_voz.asistente import talk
+from PIL import Image
+from customtkinter import CTkImage
+from Backend.funcionamiento_logica_modulos.nadadores import buscar_nadador_por_codigo_global
+
+def interfaz_registro_sesion(root, codigo_nadador):
+    ventana = ctk.CTkToplevel(root)
     ventana.title("Cobaj Sports — Registrar Sesión")
     ventana.geometry("520x720")
-    ventana.resizable(False, False)
     ventana.configure(fg_color="#0A1628")
+    ventana.update()
 
-    # ===================== FONDO FIJO =====================
+    # ===================== FONDO =====================
     img_fondo = Image.open("Backgrounds/fondo7.webp")
 
     fondo_lbl = ctk.CTkLabel(ventana, text="")
     fondo_lbl.place(x=0, y=0, relwidth=1, relheight=1)
-    fondo_lbl.lower()
-
-    def actualizar(event=None):
-        w, h = ventana.winfo_width(), ventana.winfo_height()
-        if w < 100 or h < 100:
-            return
-
-        resized = img_fondo.resize((w, h))
-
-        # 🔥 CLAVE: guardar referencia en la ventana (OBLIGATORIO)
-        ventana._bg_img = CTkImage(light_image=resized, size=(w, h))
-        fondo_lbl.configure(image=ventana._bg_img)
-        fondo_lbl.lower()
-
-    ventana.bind("<Configure>", actualizar)
-    ventana.after(100, actualizar)
 
     # ===================== CARD =====================
     card = ctk.CTkFrame(
@@ -39,7 +30,7 @@ def interfaz_registro_sesion():
         width=450,
         height=670,
         corner_radius=24,
-        fg_color="#0F2040DD"
+        fg_color="#0F2040"
     )
     card.place(relx=0.5, rely=0.5, anchor="center")
     card.pack_propagate(False)
@@ -47,19 +38,63 @@ def interfaz_registro_sesion():
     cnt = ctk.CTkFrame(card, fg_color="transparent")
     cnt.pack(expand=True, fill="both", padx=28, pady=22)
 
-    # ===================== UI SIMPLE =====================
-    ctk.CTkLabel(cnt, text="Registrar sesión",
-                 font=ctk.CTkFont(size=20, weight="bold"),
-                 text_color="#E8F4FD").pack(pady=10)
+    # ===================== ACTUALIZAR FONDO =====================
+    def actualizar(event=None):
+        ventana.update_idletasks()
+        w, h = ventana.winfo_width(), ventana.winfo_height()
+        if w < 100 or h < 100:
+            ventana.after(100, actualizar)
+            return
+        resized = img_fondo.resize((w, h))
+        ventana._bg_img = CTkImage(light_image=resized, size=(w, h))
+        fondo_lbl.configure(image=ventana._bg_img)
+        fondo_lbl.lower()
+        card.lift()
 
-    ctk.CTkEntry(cnt, placeholder_text="Fecha (YYYY-MM-DD)").pack(fill="x", pady=5)
-    ctk.CTkEntry(cnt, placeholder_text="Tipo de sesión").pack(fill="x", pady=5)
-    ctk.CTkEntry(cnt, placeholder_text="Descripción").pack(fill="x", pady=5)
+    ventana.bind("<Configure>", actualizar)
+    ventana.after(300, actualizar)
 
-    ctk.CTkEntry(cnt, placeholder_text="Distancia (m)").pack(fill="x", pady=5)
-    ctk.CTkEntry(cnt, placeholder_text="Tiempo (seg)").pack(fill="x", pady=5)
+    # ===================== UI =====================
+    ctk.CTkLabel(
+        cnt,
+        text="Registrar Sesión",
+        font=ctk.CTkFont(size=20, weight="bold"),
+        text_color="#E8F4FD"
+    ).pack(pady=(0, 5))
 
-    ctk.CTkButton(cnt, text="Guardar sesión").pack(pady=10)
-    ctk.CTkButton(cnt, text="Cancelar", command=ventana.destroy).pack()
+    ctk.CTkLabel(
+        cnt,
+        text=f"Nadador: {codigo_nadador}",
+        font=ctk.CTkFont(size=13),
+        text_color="#94a3b8"
+    ).pack(pady=(0, 15))
 
-    ventana.mainloop()
+    e_fecha = ctk.CTkEntry(cnt, placeholder_text="Fecha (YYYY-MM-DD)")
+    e_fecha.pack(fill="x", pady=5)
+
+    e_tipo = ctk.CTkEntry(cnt, placeholder_text="Tipo de sesión")
+    e_tipo.pack(fill="x", pady=5)
+
+    e_desc = ctk.CTkEntry(cnt, placeholder_text="Descripción")
+    e_desc.pack(fill="x", pady=5)
+
+    e_dist = ctk.CTkEntry(cnt, placeholder_text="Distancia (m)")
+    e_dist.pack(fill="x", pady=5)
+
+    e_tiempo = ctk.CTkEntry(cnt, placeholder_text="Tiempo (seg)")
+    e_tiempo.pack(fill="x", pady=5)
+
+    ctk.CTkButton(
+        cnt,
+        text="Guardar sesión",
+        fg_color="#0072FF",
+        hover_color="#005FCC"
+    ).pack(pady=15, fill="x")
+
+    ctk.CTkButton(
+        cnt,
+        text="Cancelar",
+        fg_color="#2C3E50",
+        hover_color="#1A252F",
+        command=ventana.destroy
+    ).pack(fill="x")
