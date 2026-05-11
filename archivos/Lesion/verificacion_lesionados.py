@@ -82,8 +82,7 @@ def interfaz_validar_para_lesion(root):
         lbl_res.configure(text=f"Nadador: {codigo}", text_color="#E8F4FD")
         lbl_det.configure(text="¡Es momento de registrar una nueva lesión!")
 
-        # ← solo pasa root, no ventana ni codigo
-        ventana.after(800, lambda: interfaz_registrar_lesion(root))
+        ventana.after(800, lambda: interfaz_registrar_lesion(root, nadador_id=codigo))
 
     e_codigo.bind("<Return>", lambda e: verificar())
 

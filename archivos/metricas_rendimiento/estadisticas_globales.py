@@ -135,3 +135,4 @@ def global_statistics_interface(root):
         hover_color="#1A252F",
         command=ventana.destroy
     ).pack(pady=(0, 20))
+    

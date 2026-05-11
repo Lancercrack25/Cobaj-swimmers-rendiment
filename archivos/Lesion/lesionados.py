@@ -1,8 +1,9 @@
-#esta interfaz se registraran los lesionados, aqui el entrenador podra registrar a un nadador como lesionado
 import customtkinter as ctk
 from archivos.Asistente_voz.asistente import talk
-from PIL import Image, ImageFilter
+from PIL import Image
 from customtkinter import CTkImage
+from Backend.funcionamiento_logica_modulos.lesiones import registrar_lesion
+from archivos.Terapias_reabilitacion.terapia import interfaz_registrar_terapia
 
 def _aplicar_fondo(ventana, card=None):
     try:
@@ -30,14 +31,13 @@ def _aplicar_fondo(ventana, card=None):
         print("Error fondo:", e)
 
 
-def interfaz_registrar_lesion(root):
+def interfaz_registrar_lesion(root, nadador_id=None):
     ventana = ctk.CTkToplevel(root)
     ventana.title("Cobaj Sports — Registrar Lesión")
     ventana.geometry("520x660")
     ventana.resizable(False, False)
     ventana.configure(fg_color="#0A1628")
 
-    # ================= CARD =================
     card = ctk.CTkFrame(
         ventana,
         width=440,
@@ -48,7 +48,6 @@ def interfaz_registrar_lesion(root):
     card.place(relx=0.5, rely=0.5, anchor="center")
     card.pack_propagate(False)
 
-    # ← fondo se aplica después del card para poder pasarlo
     _aplicar_fondo(ventana, card)
 
     cnt = ctk.CTkFrame(card, fg_color="transparent")
@@ -65,16 +64,24 @@ def interfaz_registrar_lesion(root):
     ctk.CTkFrame(cnt, height=2, fg_color="#C0392B").pack(fill="x", pady=(4, 14))
 
     # ================= CAMPOS =================
-    def campo(texto):
+    entries = {}
+
+    def campo(texto, key):
         ctk.CTkLabel(cnt, text=texto, text_color="#7BA7C7").pack(fill="x")
         e = ctk.CTkEntry(cnt, placeholder_text=texto)
         e.pack(fill="x", pady=5)
-        return e
+        entries[key] = e
 
-    campo("Tipo de lesión")
-    campo("Fecha de inicio")
-    campo("Fecha fin (opcional)")
-    campo("Observaciones")
+    campo("Código del nadador", "nadador_id")
+    campo("Tipo de lesión", "tipo_lesion")
+    campo("Fecha de inicio (YYYY-MM-DD)", "fecha_inicio")
+    campo("Fecha fin (opcional)", "fecha_fin")
+    campo("Observaciones", "observaciones")
+
+    # si viene nadador_id precargado
+    if nadador_id:
+        entries["nadador_id"].insert(0, str(nadador_id))
+        entries["nadador_id"].configure(state="disabled")
 
     # ================= GRAVEDAD =================
     ctk.CTkLabel(cnt, text="Gravedad", text_color="#7BA7C7").pack(fill="x", pady=(8, 2))
@@ -86,12 +93,64 @@ def interfaz_registrar_lesion(root):
         variable=gravedad
     ).pack(fill="x", pady=5)
 
+    lbl_status = ctk.CTkLabel(cnt, text="", font=ctk.CTkFont(size=12))
+    lbl_status.pack(pady=(6, 0))
+
+    # ================= LOGICA =================
+    def registrar():
+        nid = entries["nadador_id"].get().strip()
+        tipo = entries["tipo_lesion"].get().strip()
+        fecha_ini = entries["fecha_inicio"].get().strip()
+        fecha_fin = entries["fecha_fin"].get().strip() or None
+        obs = entries["observaciones"].get().strip() or None
+        grav = gravedad.get()
+
+        if not nid or not tipo or not fecha_ini:
+            lbl_status.configure(
+                text="⚠️ Código, tipo y fecha de inicio son obligatorios",
+                text_color="#F39C12"
+            )
+            return
+
+        try:
+            nid_int = str(nid)
+        except ValueError:
+            lbl_status.configure(text="⚠️ El código debe ser un número", text_color="#F39C12")
+            return
+
+        ok, msg = registrar_lesion(
+            nadador_id=nid_int,
+            tipo=tipo,
+            gravedad=grav,
+            fecha_inicio=fecha_ini,
+            fecha_fin=fecha_fin,
+            observaciones=obs
+        )
+
+        if not ok:
+            lbl_status.configure(text=f"❌ {msg}", text_color="#FF6B6B")
+            return
+
+        lbl_status.configure(text="✅ Lesión registrada correctamente", text_color="#1ABC9C")
+        talk("Lesión registrada correctamente")
+
+        # ← si es grave o media redirige a terapias
+        if grav in ("media", "grave"):
+            ventana.after(800, lambda: _ir_a_terapia(nid_int, grav))
+        else:
+            ventana.after(1200, ventana.destroy)
+
+    def _ir_a_terapia(nid_int, grav):
+        ventana.destroy()
+        interfaz_registrar_terapia(root, nadador_id=nid_int)
+
     # ================= BOTONES =================
     ctk.CTkButton(
         cnt,
         text="Registrar lesión",
         fg_color="#50BE10",
-        hover_color="#0DAF43"
+        hover_color="#0DAF43",
+        command=registrar
     ).pack(fill="x", pady=10)
 
     ctk.CTkButton(

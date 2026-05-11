@@ -3,8 +3,9 @@ from archivos.Asistente_voz.asistente import talk
 from PIL import Image, ImageFilter
 from customtkinter import CTkImage
 from archivos.Asistente_voz.asistente import talk
+from Backend.funcionamiento_logica_modulos.terapias_rehabilitacion import registrar_rehabilitacion
 
-def interfaz_registrar_terapia(root):
+def interfaz_registrar_terapia(root, nadador_id=None):
     ventana = ctk.CTkToplevel(root)
     ventana.title("Registrar Terapia de Rehabilitación")
     ventana.geometry("520x620")
@@ -23,10 +24,11 @@ def interfaz_registrar_terapia(root):
             w, h = ventana.winfo_width(), ventana.winfo_height()
             if w < 100 or h < 100:
                 return
-
             resized = img_fondo.resize((w, h))
             bg_ref[0] = CTkImage(light_image=resized, size=(w, h))
             fondo_lbl.configure(image=bg_ref[0])
+            fondo_lbl.lower()
+            card.lift()
 
         ventana.bind("<Configure>", actualizar)
         ventana.after(100, actualizar)
@@ -37,17 +39,18 @@ def interfaz_registrar_terapia(root):
     # ===================== CARD =====================
     card = ctk.CTkFrame(
         ventana,
-        width=360,
-        height=520,
+        width=420,
+        height=560,
         corner_radius=24,
         fg_color="#080808",
         border_width=1,
         border_color="#151516"
     )
     card.place(relx=0.5, rely=0.5, anchor="center")
+    card.pack_propagate(False)
 
     contenido = ctk.CTkFrame(card, fg_color="transparent")
-    contenido.place(relx=0, rely=0, relwidth=1, relheight=1)
+    contenido.pack(expand=True, fill="both", padx=28, pady=20)
 
     # ===================== HEADER =====================
     ctk.CTkLabel(
@@ -55,81 +58,91 @@ def interfaz_registrar_terapia(root):
         text="Nueva Terapia",
         font=ctk.CTkFont(size=18, weight="bold"),
         text_color="#E8F4FD"
-    ).pack(pady=(25, 5))
+    ).pack(pady=(10, 4))
 
     ctk.CTkLabel(
         contenido,
-        text="Registro de rehabilitación del nadador",
+        text="Registro de rehabilitacion del nadador",
         font=ctk.CTkFont(size=12),
         text_color="#AAB8C2"
-    ).pack(pady=(0, 15))
+    ).pack(pady=(0, 12))
+
+    ctk.CTkFrame(contenido, height=2, fg_color="#0072FF").pack(fill="x", pady=(0, 12))
 
     # ===================== CAMPOS =====================
-    def campo(placeholder):
-        e = ctk.CTkEntry(
-            contenido,
-            width=240,
-            height=38,
-            placeholder_text=placeholder
-        )
-        e.pack(pady=6)
+    def campo(placeholder, precargar=None):
+        e = ctk.CTkEntry(contenido, width=340, height=38, placeholder_text=placeholder)
+        e.pack(pady=5)
+        if precargar:
+            e.insert(0, str(precargar))
+            e.configure(state="disabled")
         return e
 
-    e_nadador = campo("ID del nadador")
-    e_lesion = campo("ID de la lesión")
-    e_tipo = campo("Tipo de terapia (Ej. Fisioterapia)")
-    e_tiempo = campo("Tiempo estimado (días)")
-    e_fecha_fin = campo("Fecha fin (YYYY-MM-DD)")
+    e_nadador = campo("ID del nadador", precargar=nadador_id)
+    e_lesion  = campo("ID de la lesion")
+    e_tipo    = campo("Tipo de terapia (Ej. Fisioterapia)")
+    e_tiempo  = campo("Tiempo estimado (dias)")
+    e_fecha_fin = campo("Fecha fin (YYYY-MM-DD, opcional)")
 
-    # ===================== ESPECIFICACIONES =====================
-    ctk.CTkLabel(
-        contenido,
-        text="Indicaciones del entrenador",
-        text_color="#AAB8C2"
-    ).pack(pady=(10, 2))
+    ctk.CTkLabel(contenido, text="Indicaciones del entrenador", text_color="#AAB8C2",
+                 font=ctk.CTkFont(size=12)).pack(pady=(8, 2))
 
-    txt_especificaciones = ctk.CTkTextbox(
-        contenido,
-        width=240,
-        height=80
-    )
-    txt_especificaciones.pack(pady=5)
+    txt_especificaciones = ctk.CTkTextbox(contenido, width=340, height=70)
+    txt_especificaciones.pack(pady=4)
 
-    # ===================== MENSAJE =====================
     lbl_estado = ctk.CTkLabel(contenido, text="", font=ctk.CTkFont(size=12))
-    lbl_estado.pack(pady=6)
+    lbl_estado.pack(pady=4)
 
-    # ===================== LÓGICA =====================
+    # ===================== LOGICA =====================
     def registrar():
         nadador = e_nadador.get().strip()
-        lesion = e_lesion.get().strip()
-        tipo = e_tipo.get().strip()
-        tiempo = e_tiempo.get().strip()
+        lesion  = e_lesion.get().strip()
+        tipo    = e_tipo.get().strip()
+        tiempo  = e_tiempo.get().strip()
+        fecha_fin = e_fecha_fin.get().strip() or None
+        especificaciones = txt_especificaciones.get("0.0", "end").strip() or None
 
         if not nadador or not lesion or not tipo or not tiempo:
-            lbl_estado.configure(text="Completa los campos obligatorios", text_color="orange")
+            lbl_estado.configure(text="Completa los campos obligatorios", text_color="#F39C12")
             return
 
         if not tiempo.isdigit():
-            lbl_estado.configure(text="Tiempo debe ser numérico", text_color="red")
+            lbl_estado.configure(text="El tiempo debe ser un numero entero", text_color="#FF6B6B")
             return
 
-        # 🔴 Aquí conectas BD después
-        lbl_estado.configure(text="Terapia registrada correctamente", text_color="green")
+        try:
+            ok, msg = registrar_rehabilitacion(
+                lesion_id=int(lesion),
+                nadador_id=int(nadador),
+                tipo_terapia=tipo,
+                tiempo_estimado_dias=int(tiempo),
+                especificaciones_entrenador=especificaciones,
+                fecha_fin=fecha_fin
+            )
+        except Exception as e:
+            lbl_estado.configure(text=f"Error: {e}", text_color="#FF6B6B")
+            return
 
-        # limpiar
-        e_nadador.delete(0, "end")
+        if not ok:
+            lbl_estado.configure(text=f"Error: {msg}", text_color="#FF6B6B")
+            return
+
+        lbl_estado.configure(text="Terapia registrada correctamente", text_color="#1ABC9C")
+        talk("Terapia de rehabilitacion registrada correctamente")
+
         e_lesion.delete(0, "end")
         e_tipo.delete(0, "end")
         e_tiempo.delete(0, "end")
         e_fecha_fin.delete(0, "end")
         txt_especificaciones.delete("0.0", "end")
 
+        ventana.after(1500, ventana.destroy)
+
     # ===================== BOTONES =====================
     ctk.CTkButton(
         contenido,
         text="Registrar terapia",
-        width=240,
+        width=340,
         height=38,
         fg_color="#0072FF",
         hover_color="#005ACC",
@@ -139,9 +152,9 @@ def interfaz_registrar_terapia(root):
     ctk.CTkButton(
         contenido,
         text="Cerrar",
-        width=240,
+        width=340,
         height=36,
         fg_color="#2C3E50",
         hover_color="#1A252F",
         command=ventana.destroy
-    ).pack(pady=(0, 20))
+    ).pack(pady=(0, 10))

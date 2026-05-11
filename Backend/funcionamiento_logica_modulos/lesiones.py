@@ -4,24 +4,49 @@ import os
 from Backend.conection_database import obtener_conexion
 
 # ================= LESIONES =================
-
-def registrar_lesion(nadador_id, tipo, gravedad, observaciones):
+def registrar_lesion(nadador_id, tipo, gravedad, fecha_inicio, fecha_fin, observaciones):
+    print(f">>> nadador_id recibido: '{nadador_id}' tipo: {type(nadador_id)}")
+    
     conn = obtener_conexion()
     if not conn:
-        return False, "Error de conexión"
+        return False, "Error de conexion"
 
     try:
         cur = conn.cursor()
+
+        cur.execute("SELECT id, codigo_acceso FROM nadadores")
+        todos = cur.fetchall()
+        print(f">>> Nadadores en BD: {todos}")
+
+        cur.execute("SELECT id FROM nadadores WHERE codigo_acceso = %s", (str(nadador_id),))
+        resultado = cur.fetchone()
+        print(f">>> Resultado por codigo_acceso: {resultado}")
+
+        if not resultado:
+            try:
+                cur.execute("SELECT id FROM nadadores WHERE id = %s", (int(nadador_id),))
+                resultado = cur.fetchone()
+                print(f">>> Resultado por id numerico: {resultado}")
+            except (ValueError, Exception) as e:
+                print(f">>> Error buscando por id numerico: {e}")
+
+        if not resultado:
+            return False, "Nadador no encontrado"
+
+        id_real = resultado[0]
+        print(f">>> id_real encontrado: {id_real}")
+
         cur.execute("""
             INSERT INTO lesiones
-            (nadador_id, tipo_lesion, gravedad,
-             fecha_inicio, activo, observaciones)
-            VALUES (%s,%s,%s,CURRENT_DATE,TRUE,%s)
-        """, (nadador_id, tipo, gravedad, observaciones))
+            (nadador_id, tipo_lesion, gravedad, fecha_inicio, fecha_fin, activo, observaciones)
+            VALUES (%s,%s,%s,%s,%s,TRUE,%s)
+        """, (id_real, tipo, gravedad, fecha_inicio, fecha_fin, observaciones))
         conn.commit()
-        return True, "Lesión registrada correctamente"
-    except psycopg2.Error as e:
+        return True, "Lesion registrada correctamente"
+
+    except Exception as e:
         conn.rollback()
+        print(f">>> Error SQL: {e}")
         return False, str(e)
     finally:
         conn.close()

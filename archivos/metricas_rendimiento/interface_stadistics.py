@@ -7,9 +7,7 @@ from PIL import Image, ImageFilter
 from customtkinter import CTkImage
 from archivos.metricas_rendimiento.estadisticas_globales import global_statistics_interface
 
-
 def fondo_card(ventana, card):
-    """Helper para no repetir el código de fondo"""
     try:
         img_fondo = Image.open("Backgrounds/fondo4.webp")
         fondo_lbl = ctk.CTkLabel(ventana, text="")
