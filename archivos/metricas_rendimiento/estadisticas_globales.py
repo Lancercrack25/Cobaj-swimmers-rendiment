@@ -12,7 +12,7 @@ from Backend.funcionamiento_logica_modulos.nadadores import obtener_nadadores
 def global_statistics_interface(root):
     ventana = ctk.CTkToplevel(root)
     ventana.title("Estadísticas globales")
-    ventana.geometry("520x500")
+    ventana.geometry("520x520")
 
     # ===================== FONDO =====================
     try:
@@ -105,6 +105,7 @@ def global_statistics_interface(root):
             return
 
         lbl_estado.configure(text=f"✅ Estadísticas de {nombre}", text_color="#1ABC9C")
+        talk(f"Mostrando resumen estadístico para el equipo de {nombre}")
 
         texto = (
             f"Total sesiones: {estadisticas.get('total_sesiones', 0)}\n"
@@ -155,7 +156,7 @@ def global_statistics_interface(root):
 
     btn_grafica_global = ctk.CTkButton(
         contenido,
-        text="📊 Ver Gráfica Comparativa",
+        text="📈 Ver Evolución del Equipo",
         width=340,
         height=38,
         fg_color="#1ABC9C",
