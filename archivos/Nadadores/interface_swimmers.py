@@ -3,8 +3,8 @@ from PIL import Image, ImageFilter
 from customtkinter import CTkImage
 from archivos.Asistente_voz.asistente import talk
 from archivos.metricas_rendimiento.interface_stadistics import personal_statistics_interface_swimmer
-from archivos.Lesion.verificacion_lesionados import interfaz_validar_para_lesion
 from archivos.Nadadores.info_swimer_profile import profile_swimmer
+from archivos.Nadadores.interfaz_submenu import interfaz_gestion_salud
 
 def interfaz_nadador(nadador_actual):
     nadador_id = nadador_actual["id"]
@@ -108,7 +108,7 @@ def interfaz_nadador(nadador_actual):
     botones = [
         ("👤  Mi perfil",            "#1A3A6B", "#00A8D6", lambda: profile_swimmer(nadador_actual, ventana)),
         ("📊  Mis estadísticas",     "#2A2000", "#D4A030", lambda: personal_statistics_interface_swimmer(nadador_actual, ventana)),
-        ("🩹  Mis lesiones",         "#1E0A35", "#9333EA", lambda: interfaz_validar_para_lesion(root=ventana)),
+        ("🩹  Mis lesiones y terapia",         "#1E0A35", "#9333EA", lambda: interfaz_gestion_salud(ventana, nadador_actual)),
     ]
 
     for texto, color, hover, cmd in botones:
