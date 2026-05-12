@@ -48,10 +48,11 @@ def obtener_metricas_nadador(nadador_id):
     try:
         cur = conn.cursor()
         cur.execute("""
-            SELECT id, sesion_id, distancia_m, tiempo_seg, ritmo, fecha
-            FROM rendimiento_nadador
-            WHERE nadador_id = %s
-            ORDER BY fecha ASC
+            SELECT rn.id, rn.sesion_id, rn.distancia_m, rn.tiempo_seg, rn.ritmo, s.fecha
+            FROM rendimiento_nadador rn
+            JOIN sesiones_entrenamiento s ON rn.sesion_id = s.id
+            WHERE rn.nadador_id = %s
+            ORDER BY s.fecha ASC
         """, (nadador_id,))
         
         registros = cur.fetchall()

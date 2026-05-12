@@ -7,6 +7,7 @@ from archivos.Asistente_voz.asistente import talk
 from PIL import Image, ImageFilter
 from customtkinter import CTkImage
 from Backend.funcionamiento_logica_modulos.metricas import obtener_estadisticas_globales
+from Backend.funcionamiento_logica_modulos.nadadores import obtener_nadadores
 
 def global_statistics_interface(root):
     ventana = ctk.CTkToplevel(root)
@@ -115,6 +116,32 @@ def global_statistics_interface(root):
 
         lbl_resultado.configure(text=texto)
         resultado_frame.pack(fill="x", padx=28, pady=6)
+        
+        # Botón opcional para ver comparativa visual
+        if estadisticas.get('total_nadadores', 0) > 0:
+            btn_grafica_global.pack(pady=5)
+
+    def mostrar_grafica_global():
+        nombre = input_nickname.get().strip()
+        est = obtener_estadisticas_globales(nombre)
+        
+        v_g = ctk.CTkToplevel(ventana)
+        v_g.title("Gráfica de Promedios del Equipo")
+        v_g.geometry("600x400")
+        
+        # Gráfica de barras para promedios globales
+        fig, ax = plt.subplots(figsize=(5, 3))
+        fig.patch.set_facecolor('#080808')
+        ax.set_facecolor('#0A1A2A')
+        
+        labels = ['Distancia (m)', 'Tiempo (s)', 'Ritmo (s/m)']
+        valores = [est['distancia_promedio'], est['tiempo_promedio'], est['ritmo_promedio'] * 100] # Escalado para visibilidad
+        ax.bar(labels, valores, color=['#0072FF', '#1ABC9C', '#F39C12'])
+        ax.set_title(f"Promedios de Equipo - Entrenador {nombre}", color="white")
+        
+        canvas = FigureCanvasTkAgg(fig, master=v_g)
+        canvas.draw()
+        canvas.get_tk_widget().pack(fill="both", expand=True)
 
     ctk.CTkButton(
         contenido,
@@ -126,6 +153,15 @@ def global_statistics_interface(root):
         command=consultar
     ).pack(pady=6)
 
+    btn_grafica_global = ctk.CTkButton(
+        contenido,
+        text="📊 Ver Gráfica Comparativa",
+        width=340,
+        height=38,
+        fg_color="#1ABC9C",
+        command=mostrar_grafica_global
+    )
+
     ctk.CTkButton(
         contenido,
         text="Cerrar",
@@ -135,4 +171,3 @@ def global_statistics_interface(root):
         hover_color="#1A252F",
         command=ventana.destroy
     ).pack(pady=(0, 20))
-    

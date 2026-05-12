@@ -1,11 +1,14 @@
 import customtkinter as ctk
 import pandas as pd
 import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from tkinter import messagebox
 from archivos.Asistente_voz.asistente import talk
 from PIL import Image, ImageFilter
 from customtkinter import CTkImage
 from archivos.metricas_rendimiento.estadisticas_globales import global_statistics_interface
+from Backend.funcionamiento_logica_modulos.metricas import obtener_metricas_nadador
+from Backend.funcionamiento_logica_modulos.nadadores import buscar_nadador_por_codigo_global
 
 def fondo_card(ventana, card):
     try:
@@ -27,6 +30,41 @@ def fondo_card(ventana, card):
         ventana.after(100, actualizar)
     except Exception as e:
         print("Error fondo:", e)
+
+def mostrar_ventana_grafica(root, metricas, nombre_nadador):
+    """Genera y muestra una ventana con la gráfica de líneas del rendimiento."""
+    if not metricas:
+        messagebox.showinfo("Sin datos", f"No hay registros de rendimiento para {nombre_nadador}.")
+        return
+
+    v_grafica = ctk.CTkToplevel(root)
+    v_grafica.title(f"Gráfica de Rendimiento — {nombre_nadador}")
+    v_grafica.geometry("700x500")
+    v_grafica.configure(fg_color="#0A1628")
+
+    # Procesamiento de datos con Pandas
+    df = pd.DataFrame(metricas)
+    df['fecha'] = pd.to_datetime(df['fecha'])
+    df = df.sort_values('fecha')
+
+    # Creación de la gráfica Matplotlib con estilo oscuro
+    plt.style.use('dark_background')
+    fig, ax = plt.subplots(figsize=(6, 4), dpi=100)
+    fig.patch.set_facecolor('#0A1628')
+    ax.set_facecolor('#0F2040')
+
+    ax.plot(df['fecha'], df['ritmo'], marker='o', linestyle='-', color='#0072FF', linewidth=2, markersize=6)
+    ax.set_title(f"Evolución del Ritmo (seg/m) - {nombre_nadador}", fontsize=14, pad=20)
+    ax.set_xlabel("Fecha de Sesión", fontsize=10)
+    ax.set_ylabel("Ritmo (segundos por metro)", fontsize=10)
+    ax.grid(True, linestyle='--', alpha=0.3)
+
+    plt.xticks(rotation=45)
+    fig.tight_layout()
+
+    canvas = FigureCanvasTkAgg(fig, master=v_grafica)
+    canvas.draw()
+    canvas.get_tk_widget().pack(fill="both", expand=True, padx=20, pady=20)
 
 
 # ================= interfaz que puede ver el ENTRENADOR =================
@@ -117,11 +155,29 @@ def personal_statistics_interface(entrenador, root):
     lbl = ctk.CTkLabel(cnt, text="", font=ctk.CTkFont(size=12))
     lbl.pack(pady=(0, 8))
 
+    def procesar_consulta():
+        codigo = e_codigo.get().strip()
+        if not codigo:
+            lbl.configure(text="⚠️ Ingresa un código", text_color="#F39C12")
+            return
+        
+        nadador = buscar_nadador_por_codigo_global(codigo)
+        if not nadador:
+            lbl.configure(text="❌ Nadador no encontrado", text_color="#FF6B6B")
+            return
+
+        metricas = obtener_metricas_nadador(nadador['id'])
+        if metricas:
+            talk(f"Generando gráfica de rendimiento para {nadador['nombre']}")
+            mostrar_ventana_grafica(v, metricas, nadador['nombre'])
+        else:
+            lbl.configure(text="⚠️ No hay datos registrados", text_color="#F39C12")
+
     ctk.CTkButton(cnt, text="📊  Checar estadísticas",
                   height=44, width=360, corner_radius=12,
                   fg_color="#2A2000", hover_color="#C7A534",
                   font=ctk.CTkFont(size=14, weight="bold"),
-                  command=lambda: lbl.configure(text="Próximamente...", text_color="#AAB8C2")
+                  command=procesar_consulta
                   ).pack(pady=(0, 10))
 
     ctk.CTkButton(cnt, text="Cerrar", height=40, width=360, corner_radius=12,
@@ -162,9 +218,16 @@ def personal_statistics_interface_swimmer(nadador, root):
 
     ctk.CTkFrame(cnt, height=2, fg_color="#0072FF").pack(fill="x", padx=28, pady=10)
 
-    lbl = ctk.CTkLabel(cnt, text="Próximamente...",
-                       font=ctk.CTkFont(size=13), text_color="#AAB8C2")
-    lbl.pack(pady=(20, 0))
+    def ver_mi_rendimiento():
+        metricas = obtener_metricas_nadador(nadador['id'])
+        mostrar_ventana_grafica(v, metricas, nadador['nombre'])
+
+    ctk.CTkButton(cnt, text="📈 Ver mi progreso",
+                  height=44, width=360, corner_radius=12,
+                  fg_color="#0072FF", hover_color="#005FCC",
+                  font=ctk.CTkFont(size=14, weight="bold"),
+                  command=ver_mi_rendimiento
+                  ).pack(pady=(20, 0))
 
     ctk.CTkFrame(cnt, height=1, fg_color="#1E4080").pack(fill="x", padx=28, pady=(20, 8))
 
