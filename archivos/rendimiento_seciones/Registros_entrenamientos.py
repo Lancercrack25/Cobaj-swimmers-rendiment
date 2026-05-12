@@ -4,15 +4,13 @@ from archivos.Asistente_voz.asistente import talk
 from PIL import Image, ImageFilter
 from customtkinter import CTkImage
 from Backend.funcionamiento_logica_modulos.nadadores import buscar_nadador_por_codigo_global
-
-import customtkinter as ctk
-from archivos.Asistente_voz.asistente import talk
-from PIL import Image
-from customtkinter import CTkImage
-from Backend.funcionamiento_logica_modulos.nadadores import buscar_nadador_por_codigo_global
-
-def interfaz_registro_sesion(root, codigo_nadador):
+from Backend.funcionamiento_logica_modulos.sesiones import crear_sesion
+from Backend.funcionamiento_logica_modulos.metricas import registrar_rendimiento
+#aqui ya se registra la secion para que se mande a la tabla de rendimiento, la cual se encargara de realizar las metricas de cada nadador o de todos.
+def interfaz_registro_sesion(root, codigo_nadador, entrenador):
     ventana = ctk.CTkToplevel(root)
+    entrenador_id = entrenador["id"]
+
     ventana.title("Cobaj Sports — Registrar Sesión")
     ventana.geometry("520x720")
     ventana.configure(fg_color="#0A1628")
@@ -84,11 +82,51 @@ def interfaz_registro_sesion(root, codigo_nadador):
     e_tiempo = ctk.CTkEntry(cnt, placeholder_text="Tiempo (seg)")
     e_tiempo.pack(fill="x", pady=5)
 
+    lbl_status = ctk.CTkLabel(cnt, text="", font=ctk.CTkFont(size=12))
+    lbl_status.pack(pady=5)
+
+    def guardar():
+        fecha = e_fecha.get().strip()
+        tipo = e_tipo.get().strip()
+        desc = e_desc.get().strip()
+        dist = e_dist.get().strip()
+        tiempo = e_tiempo.get().strip()
+
+        if not all([fecha, tipo, desc, dist, tiempo]):
+            lbl_status.configure(text="⚠️ Llena todos los campos", text_color="#F39C12")
+            return
+
+        nadador = buscar_nadador_por_codigo_global(codigo_nadador)
+        if not nadador:
+            lbl_status.configure(text="❌ Nadador no encontrado", text_color="#FF6B6B")
+            return
+
+        try:
+            # 1. Intentar crear la sesión general
+            ok_s, res_s = crear_sesion(entrenador_id, fecha, tipo, desc)
+            if not ok_s:
+                lbl_status.configure(text=f"❌ {res_s}", text_color="#FF6B6B")
+                return
+            
+            sesion_id = res_s # Ahora devuelve el ID numérico
+
+            # 2. Registrar el rendimiento específico del nadador
+            ok_r, msg_r = registrar_rendimiento(nadador["id"], sesion_id, float(dist), float(tiempo))
+            if ok_r:
+                lbl_status.configure(text="✅ Registrado correctamente", text_color="#1ABC9C")
+                talk("Entrenamiento guardado con éxito")
+                ventana.after(1500, ventana.destroy)
+            else:
+                lbl_status.configure(text=f"❌ {msg_r}", text_color="#FF6B6B")
+        except ValueError:
+            lbl_status.configure(text="❌ Distancia y tiempo deben ser números", text_color="#FF6B6B")
+
     ctk.CTkButton(
         cnt,
         text="Guardar sesión",
         fg_color="#0072FF",
-        hover_color="#005FCC"
+        hover_color="#005FCC",
+        command=guardar
     ).pack(pady=15, fill="x")
 
     ctk.CTkButton(

@@ -5,10 +5,9 @@ from Backend.conection_database import obtener_conexion
 from Backend.funcionamiento_logica_modulos.lesiones import puede_entrenar
 
 # ================= RENDIMIENTO =================
-
 def registrar_rendimiento(nadador_id, sesion_id, distancia, tiempo):
     if distancia <= 0 or tiempo <= 0:
-        return False, "Datos inválidos"
+        return False, "Datos invalidos"
 
     if not puede_entrenar(nadador_id):
         return False, "Nadador lesionado"
@@ -17,14 +16,14 @@ def registrar_rendimiento(nadador_id, sesion_id, distancia, tiempo):
 
     conn = obtener_conexion()
     if not conn:
-        return False, "Error de conexión"
+        return False, "Error de conexion"
 
     try:
         cur = conn.cursor()
         cur.execute("""
             INSERT INTO rendimiento_nadador
-            (nadador_id, sesion_id, distancia_m, tiempo_seg, ritmo, fecha)
-            VALUES (%s,%s,%s,%s,%s,CURRENT_DATE)
+            (nadador_id, sesion_id, distancia_m, tiempo_seg, ritmo)
+            VALUES (%s,%s,%s,%s,%s)
         """, (nadador_id, sesion_id, distancia, tiempo, ritmo))
         conn.commit()
         return True, "Rendimiento registrado correctamente"
@@ -33,6 +32,8 @@ def registrar_rendimiento(nadador_id, sesion_id, distancia, tiempo):
         return False, str(e)
     finally:
         conn.close()
+
+# ================= METRICAS =================
 
 def obtener_metricas_nadador(nadador_id):
     """

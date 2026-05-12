@@ -8,7 +8,7 @@ from Backend.funcionamiento_logica_modulos.terapias_rehabilitacion import regist
 def interfaz_registrar_terapia(root, nadador_id=None):
     ventana = ctk.CTkToplevel(root)
     ventana.title("Registrar Terapia de Rehabilitación")
-    ventana.geometry("520x620")
+    ventana.geometry("520x580")
     ventana.resizable(False, False)
 
     # ===================== FONDO =====================
@@ -40,7 +40,7 @@ def interfaz_registrar_terapia(root, nadador_id=None):
     card = ctk.CTkFrame(
         ventana,
         width=420,
-        height=560,
+        height=520,
         corner_radius=24,
         fg_color="#080808",
         border_width=1,
@@ -70,22 +70,26 @@ def interfaz_registrar_terapia(root, nadador_id=None):
     ctk.CTkFrame(contenido, height=2, fg_color="#0072FF").pack(fill="x", pady=(0, 12))
 
     # ===================== CAMPOS =====================
-    def campo(placeholder, precargar=None):
+    def campo(placeholder, precargar=None, disabled=False):
         e = ctk.CTkEntry(contenido, width=340, height=38, placeholder_text=placeholder)
         e.pack(pady=5)
         if precargar:
             e.insert(0, str(precargar))
+        if disabled:
             e.configure(state="disabled")
         return e
 
-    e_nadador = campo("ID del nadador", precargar=nadador_id)
-    e_lesion  = campo("ID de la lesion")
-    e_tipo    = campo("Tipo de terapia (Ej. Fisioterapia)")
-    e_tiempo  = campo("Tiempo estimado (dias)")
+    e_nadador   = campo("ID del nadador", precargar=nadador_id, disabled=bool(nadador_id))
+    e_tipo      = campo("Tipo de terapia (Ej. Fisioterapia)")
+    e_tiempo    = campo("Tiempo estimado (dias)")
     e_fecha_fin = campo("Fecha fin (YYYY-MM-DD, opcional)")
 
-    ctk.CTkLabel(contenido, text="Indicaciones del entrenador", text_color="#AAB8C2",
-                 font=ctk.CTkFont(size=12)).pack(pady=(8, 2))
+    ctk.CTkLabel(
+        contenido,
+        text="Indicaciones del entrenador",
+        text_color="#AAB8C2",
+        font=ctk.CTkFont(size=12)
+    ).pack(pady=(8, 2))
 
     txt_especificaciones = ctk.CTkTextbox(contenido, width=340, height=70)
     txt_especificaciones.pack(pady=4)
@@ -96,23 +100,27 @@ def interfaz_registrar_terapia(root, nadador_id=None):
     # ===================== LOGICA =====================
     def registrar():
         nadador = e_nadador.get().strip()
-        lesion  = e_lesion.get().strip()
         tipo    = e_tipo.get().strip()
         tiempo  = e_tiempo.get().strip()
         fecha_fin = e_fecha_fin.get().strip() or None
         especificaciones = txt_especificaciones.get("0.0", "end").strip() or None
 
-        if not nadador or not lesion or not tipo or not tiempo:
-            lbl_estado.configure(text="Completa los campos obligatorios", text_color="#F39C12")
+        if not nadador or not tipo or not tiempo:
+            lbl_estado.configure(
+                text="⚠️ Completa los campos obligatorios",
+                text_color="#F39C12"
+            )
             return
 
         if not tiempo.isdigit():
-            lbl_estado.configure(text="El tiempo debe ser un numero entero", text_color="#FF6B6B")
+            lbl_estado.configure(
+                text="⚠️ El tiempo debe ser un numero entero",
+                text_color="#FF6B6B"
+            )
             return
 
         try:
             ok, msg = registrar_rehabilitacion(
-                lesion_id=int(lesion),
                 nadador_id=int(nadador),
                 tipo_terapia=tipo,
                 tiempo_estimado_dias=int(tiempo),
@@ -120,17 +128,16 @@ def interfaz_registrar_terapia(root, nadador_id=None):
                 fecha_fin=fecha_fin
             )
         except Exception as e:
-            lbl_estado.configure(text=f"Error: {e}", text_color="#FF6B6B")
+            lbl_estado.configure(text=f"❌ Error: {e}", text_color="#FF6B6B")
             return
 
         if not ok:
-            lbl_estado.configure(text=f"Error: {msg}", text_color="#FF6B6B")
+            lbl_estado.configure(text=f"❌ {msg}", text_color="#FF6B6B")
             return
 
-        lbl_estado.configure(text="Terapia registrada correctamente", text_color="#1ABC9C")
+        lbl_estado.configure(text="✅ Terapia registrada correctamente", text_color="#1ABC9C")
         talk("Terapia de rehabilitacion registrada correctamente")
 
-        e_lesion.delete(0, "end")
         e_tipo.delete(0, "end")
         e_tiempo.delete(0, "end")
         e_fecha_fin.delete(0, "end")

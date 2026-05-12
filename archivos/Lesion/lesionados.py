@@ -2,8 +2,10 @@ import customtkinter as ctk
 from archivos.Asistente_voz.asistente import talk
 from PIL import Image
 from customtkinter import CTkImage
+from archivos.Asistente_voz.asistente import talk
 from Backend.funcionamiento_logica_modulos.lesiones import registrar_lesion
 from archivos.Terapias_reabilitacion.terapia import interfaz_registrar_terapia
+from Backend.funcionamiento_logica_modulos.nadadores import buscar_nadador_por_codigo_global
 
 def _aplicar_fondo(ventana, card=None):
     try:
@@ -131,16 +133,19 @@ def interfaz_registrar_lesion(root, nadador_id=None):
             lbl_status.configure(text=f"❌ {msg}", text_color="#FF6B6B")
             return
 
+        nadador = buscar_nadador_por_codigo_global(nid_int)
+        id_numerico = nadador["id"] if nadador else nid_int
+
         lbl_status.configure(text="✅ Lesión registrada correctamente", text_color="#1ABC9C")
         talk("Lesión registrada correctamente")
 
-        # ← si es grave o media redirige a terapias
         if grav in ("media", "grave"):
-            ventana.after(800, lambda: _ir_a_terapia(nid_int, grav))
+            ventana.after(800, lambda: _ir_a_terapia(id_numerico, grav))
         else:
             ventana.after(1200, ventana.destroy)
 
     def _ir_a_terapia(nid_int, grav):
+        print(f">>> Mandando a terapia con nadador_id: {nid_int}")
         ventana.destroy()
         interfaz_registrar_terapia(root, nadador_id=nid_int)
 

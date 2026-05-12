@@ -4,8 +4,10 @@ from archivos.Asistente_voz.asistente import talk
 from PIL import Image, ImageFilter
 from customtkinter import CTkImage
 from archivos.rendimiento_seciones.Registros_entrenamientos import interfaz_registro_sesion
+from Backend.funcionamiento_logica_modulos.lesiones import puede_entrenar
+from Backend.funcionamiento_logica_modulos.nadadores import buscar_nadador_por_codigo_global
 
-def interfaz_validar_lesion(root):
+def interfaz_validar_lesion(root, entrenador):
     ventana = ctk.CTkToplevel(root)
     ventana.title("Cobaj Sports — Verificación Médica")
     ventana.geometry("520x650")
@@ -107,14 +109,20 @@ def interfaz_validar_lesion(root):
             lbl.configure(text="⚠️ Ingresa un código", text_color="#F39C12")
             return
 
-        # --- Aquí conectas tu lógica real (BD, lista, etc.) ---
-        # Por ahora busca en una lista de ejemplo
-        nadadores_lesionados = ["NAD002", "NAD005", "NAD009"]  # reemplaza con tu fuente real
+        nadador = buscar_nadador_por_codigo_global(codigo)
+        if not nadador:
+            lbl.configure(text="❌ Nadador no encontrado", text_color="#FF6B6B")
+            btn_sesion.configure(state="disabled")
+            return
 
-        if codigo in nadadores_lesionados:
+        if not puede_entrenar(nadador['id']):
+            talk("Atención. Se ha detectado una lesión activa para este nadador. No es posible registrar entrenamientos hasta que sea dado de alta.")
             lbl.configure(text="🚫 Lesión activa detectada", text_color="#FF6B6B")
+            btn_sesion.configure(state="disabled")
+            ventana.after(2500, ventana.destroy)
         else:
-            lbl.configure(text="✅ Sin lesiones activas", text_color="#1ABC9C")
+            lbl.configure(text="✅ Validado. Sin lesiones activas", text_color="#1ABC9C")
+            btn_sesion.configure(state="normal")
 
     # ===================== BOTONES =====================
     ctk.CTkButton(
@@ -128,15 +136,17 @@ def interfaz_validar_lesion(root):
         command=validar
     ).pack(pady=(4, 10))
 
-    ctk.CTkButton(
+    btn_sesion = ctk.CTkButton(
         cnt,
         text="📋 Registrar sesión",
         width=340,
         height=42,
         fg_color="#1ABC9C",
         hover_color="#17A589",
-        command=lambda: [interfaz_registro_sesion(ventana, e_codigo.get().strip())]
-    ).pack(pady=5)
+        state="disabled",
+        command=lambda: [interfaz_registro_sesion(ventana, e_codigo.get().strip(), entrenador)]
+    )
+    btn_sesion.pack(pady=5)
 
     ctk.CTkButton(
         cnt,

@@ -75,7 +75,6 @@ def crear_tablas_si_no_existen():
                 ON DELETE CASCADE
         );
         """)
-
         # -------------------- LESIONES --------------------
         cur.execute("""
         CREATE TABLE IF NOT EXISTS lesiones (

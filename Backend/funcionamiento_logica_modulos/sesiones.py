@@ -16,9 +16,11 @@ def crear_sesion(entrenador_id, fecha, tipo, descripcion):
             INSERT INTO sesiones_entrenamiento
             (entrenador_id, fecha, tipo, descripcion)
             VALUES (%s,%s,%s,%s)
+            RETURNING id
         """, (entrenador_id, fecha, tipo, descripcion))
+        sesion_id = cur.fetchone()[0]
         conn.commit()
-        return True, "Sesión creada correctamente"
+        return True, sesion_id
     except psycopg2.Error as e:
         return False, str(e)
     finally:
