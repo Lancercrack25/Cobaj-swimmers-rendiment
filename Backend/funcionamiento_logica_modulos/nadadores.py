@@ -73,20 +73,28 @@ def obtener_nadadores(entrenador_id):
     finally:
         conn.close()
 
-def eliminar_nadador(nadador_id, entrenador_id):
+def eliminar_nadador(nadador_id, entrenador_id=None):
     conn = obtener_conexion()
     if not conn:
         return False
 
     try:
         cur = conn.cursor()
-        cur.execute("""
-            UPDATE nadadores
-            SET    activo = FALSE
-            WHERE  id = %s
-              AND  entrenador_id = %s
-              AND  activo = TRUE
-        """, (nadador_id, entrenador_id))
+        
+        if entrenador_id:
+            # Si hay un entrenador asociado, validamos ambos IDs
+            cur.execute("""
+                UPDATE nadadores
+                SET    activo = FALSE
+                WHERE  id = %s AND entrenador_id = %s AND activo = TRUE
+            """, (nadador_id, entrenador_id))
+        else:
+            # Si no tiene entrenador (borrado por el propio nadador recién registrado)
+            cur.execute("""
+                UPDATE nadadores
+                SET    activo = FALSE
+                WHERE  id = %s AND activo = TRUE
+            """, (nadador_id,))
 
         conn.commit()
         return cur.rowcount > 0
@@ -201,7 +209,7 @@ def obtener_nadador_por_id(nadador_id):
         cur = conn.cursor()
         cur.execute("""
             SELECT id, nombre, edad, codigo_acceso, genero,
-                   peso, estatura, problema_respiratorio
+                   peso, estatura, problema_respiratorio, entrenador_id
             FROM nadadores
             WHERE id = %s AND activo = TRUE
         """, (nadador_id,))

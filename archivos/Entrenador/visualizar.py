@@ -4,6 +4,7 @@ from PIL import Image, ImageFilter
 from customtkinter import CTkImage
 from archivos.Asistente_voz.asistente import talk
 from Backend.funcionamiento_logica_modulos.nadadores import obtener_nadadores,desvincular_nadador_entrenador
+from Backend.funcionamiento_logica_modulos.lesiones import puede_entrenar
 from archivos.Entrenador.mis_alumnos import equipo_actual
 #aqui el entrenador podra registrar y ver a sus alumnos, aqui podra ver a los alumnos que tiene registrados, y registrar a nuevos alumnos, ademas de eliminar a los alumnos que ya no entrenan con el
 
@@ -99,6 +100,14 @@ def interfaz_ver_nadadores(entrenador, root):
 
             ctk.CTkLabel(row, text=n["nombre"], font=ctk.CTkFont(size=13, weight="bold"),
                          text_color="#E8F4FD", anchor="w").pack(side="left", fill="x", expand=True)
+
+            # Estatus Médico
+            es_apto = puede_entrenar(n["id"])
+            status_txt = "✅ Apto" if es_apto else "❌ Lesionado"
+            status_col = "#1ABC9C" if es_apto else "#E74C3C"
+
+            ctk.CTkLabel(row, text=status_txt, font=ctk.CTkFont(size=11, weight="bold"),
+                         text_color=status_col).pack(side="right", padx=10)
 
             badge = ctk.CTkFrame(row, fg_color="#0072FF", corner_radius=6)
             badge.pack(side="right", padx=4)

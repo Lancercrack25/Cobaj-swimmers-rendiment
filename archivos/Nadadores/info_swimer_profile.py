@@ -5,13 +5,15 @@ from customtkinter import CTkImage
 from Backend.funcionamiento_logica_modulos.nadadores import obtener_nadador_por_id, eliminar_nadador
 from archivos.Animaciones.animacion_dado_baja import mostrar_splash_dado_baja
 from archivos.Asistente_voz.asistente import talk
+from Backend.funcionamiento_logica_modulos.lesiones import puede_entrenar
 
 def profile_swimmer(nadador, root):
     v = ctk.CTkToplevel(root)
     nadador_id = nadador["id"]
     nadador_nombre = nadador["nombre"]
+    datos_completos = {} # Inicializar datos_completos aquí
     v.title("Cobaj Sports — Perfil")
-    v.geometry("520x650")
+    v.geometry("620x650")
     v.configure(fg_color="#0A1628")
 
     # ================= FONDO =================
@@ -36,7 +38,7 @@ def profile_swimmer(nadador, root):
         print("Error fondo:", e)
 
     # ================= CARD =================
-    card = ctk.CTkFrame(v, width=450, height=590, corner_radius=24,
+    card = ctk.CTkFrame(v, width=450, height=616, corner_radius=24,
                         fg_color="#0F2040", border_width=1, border_color="#1E4080")
     card.place(relx=0.5, rely=0.5, anchor="center")
 
@@ -89,11 +91,16 @@ def profile_swimmer(nadador, root):
                     variable=prob_var, font=ctk.CTkFont(size=13),
                     text_color="#AAB8C2").pack(pady=4, anchor="w")
 
+    # Estatus Médico
+    lbl_status_medico = ctk.CTkLabel(cnt, text="Estatus: Verificando...", font=ctk.CTkFont(size=14, weight="bold"))
+    lbl_status_medico.pack(pady=(5, 5))
+
     # ================= CARGA DATOS =================
     def cargar_datos():
         data = obtener_nadador_por_id(nadador_id)
         if not data:
             return
+        datos_completos["entrenador_id"] = data.get("entrenador_id")
         e_nombre.insert(0, data.get("nombre", ""))
         e_edad.insert(0, str(data.get("edad", "")))
         e_codigo.insert(0, data.get("codigo_acceso", ""))
@@ -101,6 +108,12 @@ def profile_swimmer(nadador, root):
         e_peso.insert(0, str(data.get("peso", "")))
         e_estatura.insert(0, str(data.get("estatura", "")))
         prob_var.set(data.get("problema_respiratorio", False))
+
+        # Consultar si el nadador tiene lesiones activas
+        if puede_entrenar(nadador_id):
+            lbl_status_medico.configure(text="Estatus: ✅ Apto para entrenar", text_color="#1ABC9C")
+        else:
+            lbl_status_medico.configure(text="Estatus: ❌ En recuperación / Lesionado", text_color="#E74C3C")
 
     cargar_datos()
 
@@ -130,12 +143,12 @@ def profile_swimmer(nadador, root):
         btn_row.pack()
 
         def eliminar():
-            ok = eliminar_nadador(nadador_id, nadador["entrenador_id"])
+            ok = eliminar_nadador(nadador_id, datos_completos["entrenador_id"])
             dialogo.destroy()
             if ok:
                 lbl.configure(text="✅ Nadador eliminado", text_color="#1ABC9C")
                 mostrar_splash_dado_baja(v)
-                v.after(1500, v.destroy)  # cierra el perfil después de 1.5s
+                v.after(1000, v.destroy)  # cierra el perfil después de 1.5s
             else:
                 talk("Error al eliminar el nadador")
                 lbl.configure(text="❌ Error al eliminar", text_color="red")
