@@ -84,41 +84,41 @@ def obtener_estadisticas_globales(nombre_entrenador):
     try:
         cur = conn.cursor()
 
-        # busca el entrenador por nombre
         cur.execute("SELECT id FROM entrenadores WHERE nombre = %s", (nombre_entrenador,))
         entrenador = cur.fetchone()
-
         if not entrenador:
             return None
 
         entrenador_id = entrenador[0]
 
-        # total de sesiones del entrenador
-        cur.execute("""
-            SELECT COUNT(*) FROM sesiones_entrenamiento
-            WHERE entrenador_id = %s
-        """, (entrenador_id,))
+        cur.execute("SELECT COUNT(*) FROM sesiones_entrenamiento WHERE entrenador_id = %s", (entrenador_id,))
         total_sesiones = cur.fetchone()[0]
 
-        # total de nadadores asignados al entrenador
-        cur.execute("""
-            SELECT COUNT(*) FROM nadadores
-            WHERE entrenador_id = %s AND activo = TRUE
-        """, (entrenador_id,))
+        cur.execute("SELECT COUNT(*) FROM nadadores WHERE entrenador_id = %s AND activo = TRUE", (entrenador_id,))
         total_nadadores = cur.fetchone()[0]
 
-        # promedios de rendimiento de todos los nadadores del entrenador
+        cur.execute("""
+            SELECT AVG(rn.distancia_m), AVG(rn.tiempo_seg), AVG(rn.ritmo)
+            FROM rendimiento_nadador rn
+            JOIN nadadores n ON rn.nadador_id = n.id
+            WHERE n.entrenador_id = %s
+        """, (entrenador_id,))
+        promedios = cur.fetchone()
+
+        # ← datos por nadador para la grafica comparativa
         cur.execute("""
             SELECT 
+                n.nombre,
                 AVG(rn.distancia_m),
                 AVG(rn.tiempo_seg),
                 AVG(rn.ritmo)
             FROM rendimiento_nadador rn
             JOIN nadadores n ON rn.nadador_id = n.id
             WHERE n.entrenador_id = %s
+            GROUP BY n.id, n.nombre
+            ORDER BY AVG(rn.distancia_m) DESC
         """, (entrenador_id,))
-
-        promedios = cur.fetchone()
+        por_nadador = cur.fetchall()
 
         return {
             "total_sesiones": total_sesiones,
@@ -126,10 +126,19 @@ def obtener_estadisticas_globales(nombre_entrenador):
             "distancia_promedio": float(promedios[0]) if promedios[0] else 0,
             "tiempo_promedio": float(promedios[1]) if promedios[1] else 0,
             "ritmo_promedio": float(promedios[2]) if promedios[2] else 0,
+            "por_nadador": [
+                {
+                    "nombre": row[0],
+                    "distancia": float(row[1]) if row[1] else 0,
+                    "tiempo": float(row[2]) if row[2] else 0,
+                    "ritmo": float(row[3]) if row[3] else 0,
+                }
+                for row in por_nadador
+            ]
         }
 
     except Exception as e:
-        print("❌ Error obteniendo estadísticas globales:", e)
+        print("Error obteniendo estadisticas globales:", e)
         return None
     finally:
         conn.close()

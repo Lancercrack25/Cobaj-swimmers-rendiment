@@ -4,7 +4,7 @@ from PIL import Image, ImageFilter
 from customtkinter import CTkImage
 from archivos.Asistente_voz.asistente import talk
 from Backend.funcionamiento_logica_modulos.terapias_rehabilitacion import registrar_rehabilitacion
-
+#esta interfaz se manda a llamar cuando la lesion es media o grave, para registrar la terapia de rehabilitacion que se le asigna al nadador, con el tipo de terapia, tiempo estimado, fecha fin y especificaciones del entrenador
 def interfaz_registrar_terapia(root, nadador_id=None):
     ventana = ctk.CTkToplevel(root)
     ventana.title("Registrar Terapia de Rehabilitación")
@@ -104,6 +104,7 @@ def interfaz_registrar_terapia(root, nadador_id=None):
         tiempo  = e_tiempo.get().strip()
         fecha_fin = e_fecha_fin.get().strip() or None
         especificaciones = txt_especificaciones.get("0.0", "end").strip() or None
+        print(f">>> nadador_id en terapia: '{nadador}'")
 
         if not nadador or not tipo or not tiempo:
             lbl_estado.configure(

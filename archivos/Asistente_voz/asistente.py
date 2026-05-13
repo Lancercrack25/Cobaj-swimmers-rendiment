@@ -19,7 +19,7 @@ def talk(texto):
                 engine.setProperty('voice', v.id)
                 break
 
-        engine.setProperty('rate', 170)
+        engine.setProperty('rate', 200)
         engine.setProperty('volume', 1.0)
 
         engine.say(texto)
