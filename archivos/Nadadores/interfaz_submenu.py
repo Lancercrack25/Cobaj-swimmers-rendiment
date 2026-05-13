@@ -12,7 +12,6 @@ def interfaz_gestion_salud(root, nadador):
     ventana = ctk.CTkToplevel(root)
     ventana.title("Cobaj Sports — Gestión Médica")
     ventana.geometry("520x620")
-    ventana.resizable(False, False)
     ventana.configure(fg_color="#0A1628")
 
     # ===================== FONDO DINÁMICO =====================

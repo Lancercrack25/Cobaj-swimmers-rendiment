@@ -8,7 +8,6 @@ def interfaz_historial_terapias(root, nadador_id):
     ventana = ctk.CTkToplevel(root)
     ventana.title("Historial de Terapias de Rehabilitación")
     ventana.geometry("600x650")
-    ventana.resizable(False, False)
     ventana.configure(fg_color="#0A1628")
 
     try:

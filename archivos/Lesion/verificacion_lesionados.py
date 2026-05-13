@@ -9,7 +9,6 @@ def interfaz_validar_para_lesion(root):
     ventana = ctk.CTkToplevel(root)
     ventana.title("Cobaj Sports — Verificación de Lesión")
     ventana.geometry("520x650")
-    ventana.resizable(False, False)
     ventana.configure(fg_color="#000000")
     ventana.update_idletasks()
 

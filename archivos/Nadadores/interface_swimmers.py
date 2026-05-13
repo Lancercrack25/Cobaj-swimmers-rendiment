@@ -12,7 +12,6 @@ def interfaz_nadador(nadador_actual):
     ventana = ctk.CTk()
     ventana.title("Cobaj Sports — Panel Nadador")
     ventana.geometry("520x600")
-    ventana.resizable(False, False)
     ventana.configure(fg_color="#0A1628")
 
     # ===================== FONDO =====================

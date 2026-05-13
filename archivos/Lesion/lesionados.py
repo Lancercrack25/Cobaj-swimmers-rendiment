@@ -37,7 +37,6 @@ def interfaz_registrar_lesion(root, nadador_id=None):
     ventana = ctk.CTkToplevel(root)
     ventana.title("Cobaj Sports — Registrar Lesión")
     ventana.geometry("520x660")
-    ventana.resizable(False, False)
     ventana.configure(fg_color="#0A1628")
 
     card = ctk.CTkFrame(

@@ -9,7 +9,6 @@ def interfaz_historial_lesiones(root, nadador_id):
     ventana = ctk.CTkToplevel(root)
     ventana.title("Cobaj Sports — Historial de Lesiones")
     ventana.geometry("600x650")
-    ventana.resizable(False, False)
     ventana.configure(fg_color="#0A1628")
 
     # ===================== FONDO DINÁMICO =====================
