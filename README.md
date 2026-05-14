@@ -17,8 +17,7 @@ Sistema de escritorio para la gestión integral del rendimiento deportivo de nad
 ### 1. Clonar el repositorio
 
 ```bash
-git clone https://github.com/tu-usuario/cobaj-sports-rendiment.git
-cd cobaj-sports-rendiment
+git clone https://github.com/Lancercrack25/Cobaj-swimmers-rendiment.git
 ```
 
 ### 2. Instalar dependencias
