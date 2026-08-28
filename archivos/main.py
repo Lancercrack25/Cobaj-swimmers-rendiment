@@ -140,9 +140,7 @@ def login_nadador_ui():
     if not codigo or not password:
         messagebox.showerror("Error", "Completa todos los campos")
         return
-
     res = login_nadador(codigo, password)
-
     if not res:
         messagebox.showerror("Error", "Credenciales inválidas")
         return
